@@ -11,6 +11,7 @@ export interface PromptParts {
   place: PromptPartLang;
   time: PromptPartLang;
   cameraMovement: PromptPartLang;
+  aspectRatio: PromptPartLang;
   lighting: PromptPartLang;
   videoStyle: PromptPartLang;
   videoMood: PromptPartLang;

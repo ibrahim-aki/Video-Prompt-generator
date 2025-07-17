@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PromptParts, PromptPartLang, HistoryEntry } from './types';
 import { generatePrompt } from './services/geminiService';
@@ -27,6 +29,7 @@ const translations = {
         placeLabel: "Tempat",
         timeLabel: "Waktu",
         cameraMovementLabel: "Gerakan Kamera",
+        aspectRatioLabel: "Rasio Aspek",
         lightingLabel: "Pencahayaan",
         videoStyleLabel: "Gaya Video",
         videoMoodLabel: "Suasana Video",
@@ -75,7 +78,9 @@ const translations = {
         credit: "Aplikasi dibuat oleh Ibrahim",
         socialMedia: "Media Sosial",
         negativePromptHistoryLabel: "Negatif:",
-        logoutButton: "Logout"
+        logoutButton: "Logout",
+        enhanceToRealisticLabel: "Tingkatkan ke Realistis",
+        enhanceToRealisticTooltip: "Menambahkan detail sinematik ke prompt akhir untuk hasil yang lebih realistis, tanpa mengubah input Anda.",
     },
     en: {
         title: "Prompt Generator App",
@@ -87,6 +92,7 @@ const translations = {
         placeLabel: "Place",
         timeLabel: "Time",
         cameraMovementLabel: "Camera Movement",
+        aspectRatioLabel: "Aspect Ratio",
         lightingLabel: "Lighting",
         videoStyleLabel: "Video Style",
         videoMoodLabel: "Video Mood",
@@ -135,7 +141,9 @@ const translations = {
         credit: "App created by Ibrahim",
         socialMedia: "Social Media",
         negativePromptHistoryLabel: "Negative:",
-        logoutButton: "Logout"
+        logoutButton: "Logout",
+        enhanceToRealisticLabel: "Enhance to Realistic",
+        enhanceToRealisticTooltip: "Adds cinematic details to the final prompt for a more realistic result, without changing your inputs.",
     },
     ar: {
         title: "تطبيق مولد الأوامر",
@@ -147,6 +155,7 @@ const translations = {
         placeLabel: "المكان",
         timeLabel: "الوقت",
         cameraMovementLabel: "حركة الكاميرا",
+        aspectRatioLabel: "نسبة العرض إلى الارتفاع",
         lightingLabel: "الإضاءة",
         videoStyleLabel: "أسلوب الفيديو",
         videoMoodLabel: "جو الفيديو",
@@ -195,7 +204,9 @@ const translations = {
         credit: "التطبيق من صنع إبراهيم",
         socialMedia: "وسائل التواصل الاجتماعي",
         negativePromptHistoryLabel: "سلبي:",
-        logoutButton: "خروج"
+        logoutButton: "خروج",
+        enhanceToRealisticLabel: "تحسين إلى الواقعية",
+        enhanceToRealisticTooltip: "يضيف تفاصيل سينمائية إلى الأمر النهائي للحصول على نتيجة أكثر واقعية، دون تغيير مدخلاتك.",
     },
     cn: {
         title: "提示生成器应用",
@@ -207,6 +218,7 @@ const translations = {
         placeLabel: "地点",
         timeLabel: "时间",
         cameraMovementLabel: "镜头移动",
+        aspectRatioLabel: "宽高比",
         lightingLabel: "灯光",
         videoStyleLabel: "视频风格",
         videoMoodLabel: "视频氛围",
@@ -255,7 +267,9 @@ const translations = {
         credit: "应用由 Ibrahim 创建",
         socialMedia: "社交媒体",
         negativePromptHistoryLabel: "负面:",
-        logoutButton: "登出"
+        logoutButton: "登出",
+        enhanceToRealisticLabel: "增强为写实",
+        enhanceToRealisticTooltip: "在不更改您输入的情况下，向最终提示添加电影细节以获得更逼真的效果。",
     },
     ru: {
         title: "Приложение-генератор промптов",
@@ -267,6 +281,7 @@ const translations = {
         placeLabel: "Место",
         timeLabel: "Время",
         cameraMovementLabel: "Движение камеры",
+        aspectRatioLabel: "Соотношение сторон",
         lightingLabel: "Освещение",
         videoStyleLabel: "Стиль видео",
         videoMoodLabel: "Настроение видео",
@@ -315,7 +330,9 @@ const translations = {
         credit: "Приложение создано Ибрагимом",
         socialMedia: "Социальные сети",
         negativePromptHistoryLabel: "Негатив:",
-        logoutButton: "Выйти"
+        logoutButton: "Выйти",
+        enhanceToRealisticLabel: "Улучшить до реалистичного",
+        enhanceToRealisticTooltip: "Добавляет кинематографические детали в финальный промпт для более реалистичного результата, не изменяя ваши вводы.",
     }
 };
 
@@ -324,12 +341,13 @@ type LocalizedOption = { value: string; id: string; en: string; ar: string; cn: 
 const subjectOptions: LocalizedOption[] = [ { value: 'Orang Asia', id: 'Orang Asia', en: 'Asian person', ar: 'شخص آسيوي', cn: '亚洲人', ru: 'Азиат' }, { value: 'Orang Afrika', id: 'Orang Afrika', en: 'African person', ar: 'شخص أفريقي', cn: '非洲人', ru: 'Африканец' }, { value: 'Orang Eropa', id: 'Orang Eropa', en: 'European person', ar: 'شخص أوروبي', cn: '欧洲人', ru: 'Европеец' }, { value: 'Orang Hispanik', id: 'Orang Hispanik', en: 'Hispanic person', ar: 'شخص من أصل إسباني', cn: '西班牙裔', ru: 'Испанец' }, { value: 'Orang Timur Tengah', id: 'Orang Timur Tengah', en: 'Middle Eastern person', ar: 'شخص من الشرق الأوسط', cn: '中东人', ru: 'Житель Ближнего Востока' }, { value: 'Anak-anak', id: 'Anak-anak', en: 'Children', ar: 'أطفال', cn: '儿童', ru: 'Дети' }, { value: 'Orang tua', id: 'Orang tua', en: 'Elderly person', ar: 'شخص مسن', cn: '老人', ru: 'Пожилой человек' }, { value: 'Robot futuristik', id: 'Robot futuristik', en: 'Futuristic robot', ar: 'روبوت مستقبلي', cn: '未来派机器人', ru: 'Футуристический робот' }, { value: 'Makhluk fantasi', id: 'Makhluk fantasi', en: 'Fantasy creature', ar: 'مخلوق خيالي', cn: '幻想生物', ru: 'Фантастическое существо' }, { value: 'Hewan (spesifik)', id: 'Hewan (spesifik)', en: 'Animal (specific)', ar: 'حيوان (محدد)', cn: '动物（具体）', ru: 'Животное (конкретное)' }, ];
 const timeOptions: LocalizedOption[] = [ { value: 'Pagi hari', id: 'Pagi hari', en: 'Morning', ar: 'صباح', cn: '早上', ru: 'Утро' }, { value: 'Siang hari', id: 'Siang hari', en: 'Daytime', ar: 'وقت النهار', cn: '白天', ru: 'День' }, { value: 'Sore hari', id: 'Sore hari', en: 'Afternoon', ar: 'بعد الظهر', cn: '下午', ru: 'После полудня' }, { value: 'Golden hour', id: 'Golden hour', en: 'Golden hour', ar: 'الساعة الذهبية', cn: '黄金时刻', ru: 'Золотой час' }, { value: 'Malam hari', id: 'Malam hari', en: 'Night', ar: 'ليل', cn: '夜晚', ru: 'Ночь' }, { value: 'Fajar', id: 'Fajar', en: 'Dawn', ar: 'فجر', cn: '黎明', ru: 'Рассвет' }, { value: 'Senja', id: 'Senja', en: 'Dusk', ar: 'غسق', cn: '黄昏', ru: 'Сумерки' }, ];
 const cameraMovementOptions: LocalizedOption[] = [ { value: 'Wide shot', id: 'Wide shot', en: 'Wide shot', ar: 'لقطة واسعة', cn: '广角镜头', ru: 'Широкий план' }, { value: 'Medium shot', id: 'Medium shot', en: 'Medium shot', ar: 'لقطة متوسطة', cn: '中景镜头', ru: 'Средний план' }, { value: 'Close-up shot', id: 'Close-up shot', en: 'Close-up shot', ar: 'لقطة مقربة', cn: '特写镜头', ru: 'Крупный план' }, { value: 'Low-angle shot', id: 'Low-angle shot', en: 'Low-angle shot', ar: 'لقطة من زاوية منخفضة', cn: '低角度拍摄', ru: 'Съемка с нижнего ракурса' }, { value: 'High-angle shot', id: 'High-angle shot', en: 'High-angle shot', ar: 'لقطة من زاوية مرتفعة', cn: '高角度拍摄', ru: 'Съемка с верхнего ракурса' }, { value: 'Dolly zoom', id: 'Dolly zoom', en: 'Dolly zoom', ar: 'تقريب دوللي', cn: '推拉变焦', ru: 'Транстрав (Долли-зум)' }, { value: 'Tracking shot', id: 'Tracking shot', en: 'Tracking shot', ar: 'لقطة تتبع', cn: '跟随镜头', ru: 'Проездка (трекинг-шот)' }, { value: 'Handheld', id: 'Handheld', en: 'Handheld', ar: 'محمولة باليد', cn: '手持拍摄', ru: 'Ручная съемка' }, { value: 'Drone shot', id: 'Drone shot', en: 'Drone shot', ar: 'لقطة بطائرة بدون طيار', cn: '无人机拍摄', ru: 'Съемка с дрона' }, ];
+const aspectRatioOptions: LocalizedOption[] = [ { value: '16:9 (Lanskap)', id: '16:9 (Lanskap)', en: '16:9', ar: '16:9 (أفقي)', cn: '16:9 (横向)', ru: '16:9 (Ландшафт)' }, { value: '9:16 (Potret)', id: '9:16 (Potret)', en: '9:16', ar: '9:16 (عمودي)', cn: '9:16 (纵向)', ru: '9:16 (Портрет)' }, { value: '1:1 (Persegi)', id: '1:1 (Persegi)', en: '1:1', ar: '1:1 (مربع)', cn: '1:1 (方形)', ru: '1:1 (Квадрат)' }, { value: '4:3 (Klasik)', id: '4:3 (Klasik)', en: '4:3', ar: '4:3 (كلاسيكي)', cn: '4:3 (经典)', ru: '4:3 (Классика)' }, { value: '3:4 (Potret Klasik)', id: '3:4 (Potret Klasik)', en: '3:4', ar: '3:4 (عمودي كلاسيكي)', cn: '3:4 (经典纵向)', ru: '3:4 (Классический портрет)' }, ];
 const lightingOptions: LocalizedOption[] = [ { value: 'Pencahayaan sinematik', id: 'Pencahayaan sinematik', en: 'Cinematic lighting', ar: 'إضاءة سينمائية', cn: '电影灯光', ru: 'Кинематографическое освещение' }, { value: 'Cahaya alami', id: 'Cahaya alami', en: 'Natural light', ar: 'ضوء طبيعي', cn: '自然光', ru: 'Естественный свет' }, { value: 'Rembrandt lighting', id: 'Rembrandt lighting', en: 'Rembrandt lighting', ar: 'إضاءة رامبرانت', cn: '伦勃朗光', ru: 'Рембрандтовский свет' }, { value: 'Cahaya neon', id: 'Cahaya neon', en: 'Neon light', ar: 'ضوء نيون', cn: '霓虹灯', ru: 'Неоновый свет' }, { value: 'High-key lighting', id: 'High-key lighting', en: 'High-key lighting', ar: 'إضاءة عالية المفتاح', cn: '高调光', ru: 'Высокий ключ' }, { value: 'Low-key lighting', id: 'Low-key lighting', en: 'Low-key lighting', ar: 'إضاءة منخفضة المفتاح', cn: '低调光', ru: 'Низкий ключ' }, { value: 'Backlight', id: 'Backlight', en: 'Backlight', ar: 'إضاءة خلفية', cn: '逆光', ru: 'Контровой свет' }, ];
 const videoStyleOptions: LocalizedOption[] = [ { value: 'Sinematik', id: 'Sinematik', en: 'Cinematic', ar: 'سينمائي', cn: '电影感', ru: 'Кинематографический' }, { value: 'Hyperrealistic', id: 'Hyperrealistic', en: 'Hyperrealistic', ar: 'واقعية مفرطة', cn: '超写实', ru: 'Гиперреалистичный' }, { value: 'Gaya anime', id: 'Gaya anime', en: 'Anime style', ar: 'أسلوب الأنمي', cn: '动漫风格', ru: 'В стиле аниме' }, { value: 'Film vintage', id: 'Film vintage', en: 'Vintage film', ar: 'فيلم كلاسيكي', cn: '复古电影', ru: 'Винтажный фильм' }, { value: 'Fantasi', id: 'Fantasi', en: 'Fantasy', ar: 'خيالي', cn: '幻想', ru: 'Фэнтези' }, { value: 'Cyberpunk', id: 'Cyberpunk', en: 'Cyberpunk', ar: 'سايبربانك', cn: '赛博朋克', ru: 'Киберпанк' }, { value: 'Dokumenter', id: 'Dokumenter', en: 'Documentary', ar: 'وثائقي', cn: '纪录片', ru: 'Документальный' }, { value: 'Stop-motion', id: 'Stop-motion', en: 'Stop-motion', ar: 'إيقاف الحركة', cn: '定格动画', ru: 'Покадровая анимация' }, { value: 'Lukisan cat air', id: 'Lukisan cat air', en: 'Watercolor painting', ar: 'لوحة مائية', cn: '水彩画', ru: 'Акварельная живопись' }, ];
 const videoMoodOptions: LocalizedOption[] = [ { value: 'Ceria', id: 'Ceria', en: 'Cheerful', ar: 'مبهج', cn: '愉快的', ru: 'Веселое' }, { value: 'Misterius', id: 'Misterius', en: 'Mysterious', ar: 'غامض', cn: '神秘的', ru: 'Таинственное' }, { value: 'Dramatis', id: 'Dramatis', en: 'Dramatic', ar: 'درامي', cn: '戏剧性的', ru: 'Драматичное' }, { value: 'Tenang', id: 'Tenang', en: 'Calm', ar: 'هادئ', cn: '平静的', ru: 'Спокойное' }, { value: 'Epik', id: 'Epik', en: 'Epic', ar: 'ملحمي', cn: '史诗般的', ru: 'Эпичное' }, { value: 'Nostalgia', id: 'Nostalgia', en: 'Nostalgic', ar: 'حنين', cn: '怀旧的', ru: 'Ностальгическое' }, { value: 'Menegangkan', id: 'Menegangkan', en: 'Tense', ar: 'متوتر', cn: '紧张的', ru: 'Напряженное' }, { value: 'Romantis', id: 'Romantis', en: 'Romantic', ar: 'رومانسي', cn: '浪漫的', ru: 'Романтичное' }, { value: 'Kecewa', id: 'Kecewa', en: 'Disappointed', ar: 'خائب الأمل', cn: '失望的', ru: 'Разочарованное' }, { value: 'Sedih', id: 'Sedih', en: 'Sad', ar: 'حزين', cn: '悲伤的', ru: 'Грустное' }, ];
 
 const createEmptyPromptPartLang = (): PromptPartLang => ({ id: '', en: '' });
-const initialPromptPartsState: PromptParts = { subject: createEmptyPromptPartLang(), subjectDetails: createEmptyPromptPartLang(), action: createEmptyPromptPartLang(), expression: createEmptyPromptPartLang(), place: createEmptyPromptPartLang(), time: createEmptyPromptPartLang(), cameraMovement: createEmptyPromptPartLang(), lighting: createEmptyPromptPartLang(), videoStyle: createEmptyPromptPartLang(), videoMood: createEmptyPromptPartLang(), sound: createEmptyPromptPartLang(), dialogue: createEmptyPromptPartLang(), details: createEmptyPromptPartLang(), negativePrompt: createEmptyPromptPartLang() };
+const initialPromptPartsState: PromptParts = { subject: createEmptyPromptPartLang(), subjectDetails: createEmptyPromptPartLang(), action: createEmptyPromptPartLang(), expression: createEmptyPromptPartLang(), place: createEmptyPromptPartLang(), time: createEmptyPromptPartLang(), cameraMovement: createEmptyPromptPartLang(), aspectRatio: createEmptyPromptPartLang(), lighting: createEmptyPromptPartLang(), videoStyle: createEmptyPromptPartLang(), videoMood: createEmptyPromptPartLang(), sound: createEmptyPromptPartLang(), dialogue: createEmptyPromptPartLang(), details: createEmptyPromptPartLang(), negativePrompt: createEmptyPromptPartLang() };
 
 const placeholders = {
     id: { subjectDetails: "Rambutnya terbuat dari api, matanya seperti permata", action: "Mengaum sambil menyemburkan api ke langit", expression: "Marah, mata menyala dengan garang", place: "Di puncak gunung berapi yang aktif, lava mengalir", sound: "Musik orkestra epik, suara gemuruh gunung", dialogue: "(Tidak ada dialog)", details: "Asap tebal membumbung, kilat menyambar di latar belakang", },
@@ -467,6 +485,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     const [progress, setProgress] = useState(0);
     const [keepSubject, setKeepSubject] = useState(false);
     const [clearIntonation, setClearIntonation] = useState(false);
+    const [enhanceToRealistic, setEnhanceToRealistic] = useState(false);
     const [modelTarget, setModelTarget] = useState<ModelTarget>('veo3');
     const [generationMode, setGenerationMode] = useState<GenerationMode>('structured');
     const [uiLang, setUiLang] = useState<UILang>('id');
@@ -491,7 +510,8 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
             ];
             
             const subjectPart = [parts.subject?.en, parts.subjectDetails?.en].filter(Boolean).join(' ');
-            
+            const aspectRatioPart = parts.aspectRatio?.en ? `An aspect ratio of ${parts.aspectRatio.en}` : '';
+
             const otherParts = order.map(key => {
                 // SPECIAL CASE: For the final English prompt, the dialogue should be in Indonesian.
                 if (key === 'dialogue') {
@@ -500,7 +520,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                 return parts[key]?.en;
             }).filter(Boolean);
 
-            let allParts = [subjectPart, ...otherParts].filter(Boolean);
+            let allParts = [aspectRatioPart, subjectPart, ...otherParts].filter(Boolean);
             let prompt = allParts.join(', ');
 
             // This check also needs to use the Indonesian dialogue.
@@ -509,7 +529,8 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
             }
             return prompt;
         } else {
-            return `Sebuah video ${parts.videoStyle?.id || ''} dengan suasana ${parts.videoMood?.id || ''}, menampilkan ${parts.subject?.id || 'subjek'}${parts.subjectDetails?.id ? ` (${parts.subjectDetails.id})` : ''}. Subjek sedang ${parts.action?.id || 'melakukan sesuatu'} dengan ekspresi ${parts.expression?.id || ''}. Lokasinya di ${parts.place?.id || 'sebuah tempat'} pada ${parts.time?.id || 'suatu waktu'}. Video diambil dengan gerakan kamera ${parts.cameraMovement?.id || ''} dan pencahayaan ${parts.lighting?.id || ''}.${parts.sound?.id ? ` Terdengar ${parts.sound.id}.` : ''}${parts.dialogue?.id ? ` Terdengar dialog: "${parts.dialogue.id}".` : ''}${parts.details?.id ? ` Detail tambahan: ${parts.details.id}.` : ''}`;
+            const aspectRatioText = parts.aspectRatio?.id ? ` dalam rasio aspek ${parts.aspectRatio.id},` : '';
+            return `Sebuah video ${parts.videoStyle?.id || ''}${aspectRatioText} dengan suasana ${parts.videoMood?.id || ''}, menampilkan ${parts.subject?.id || 'subjek'}${parts.subjectDetails?.id ? ` (${parts.subjectDetails.id})` : ''}. Subjek sedang ${parts.action?.id || 'melakukan sesuatu'} dengan ekspresi ${parts.expression?.id || ''}. Lokasinya di ${parts.place?.id || 'sebuah tempat'} pada ${parts.time?.id || 'suatu waktu'}. Video diambil dengan gerakan kamera ${parts.cameraMovement?.id || ''} dan pencahayaan ${parts.lighting?.id || ''}.${parts.sound?.id ? ` Terdengar ${parts.sound.id}.` : ''}${parts.dialogue?.id ? ` Terdengar dialog: "${parts.dialogue.id}".` : ''}${parts.details?.id ? ` Detail tambahan: ${parts.details.id}.` : ''}`;
         }
     }, [clearIntonation, modelTarget]);
     
@@ -552,7 +573,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
 
     const handleSelectChange = (part: keyof PromptParts, e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = e.target.value;
-        const allOptions = [subjectOptions, timeOptions, cameraMovementOptions, lightingOptions, videoStyleOptions, videoMoodOptions].flat();
+        const allOptions = [subjectOptions, timeOptions, cameraMovementOptions, aspectRatioOptions, lightingOptions, videoStyleOptions, videoMoodOptions].flat();
         const selectedOption = allOptions.find(opt => opt[uiLang] === selectedValue);
         
         if (selectedOption) {
@@ -576,6 +597,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
         setFinalNegativePromptEn('');
         setKeepSubject(false);
         setClearIntonation(false);
+        setEnhanceToRealistic(false);
     };
     
     const handleGenerateWithAI = async () => {
@@ -593,7 +615,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
 
         try {
             const lockedParts = keepSubject ? { subject: promptParts.subject, subjectDetails: promptParts.subjectDetails } : null;
-            const newParts = await generatePrompt(lockedParts, modelTarget, generationMode, promptParts);
+            const newParts = await generatePrompt(lockedParts, modelTarget, generationMode, promptParts, enhanceToRealistic);
             
             clearInterval(progressInterval);
             setProgress(100);
@@ -664,7 +686,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
             localStorage.setItem('promptHistory', JSON.stringify(updatedHistory));
         }
     };
-    
+
     const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => {
         const dataLangKey: 'id' | 'en' = uiLang === 'id' ? 'id' : 'en';
         return (
@@ -736,8 +758,22 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                             {renderPromptInput('place', t.placeLabel, placeholders[uiLang].place, true)}
                             {renderPromptSelect('time', t.timeLabel, timeOptions)}
                             {renderPromptSelect('cameraMovement', t.cameraMovementLabel, cameraMovementOptions)}
+                            {renderPromptSelect('aspectRatio', t.aspectRatioLabel, aspectRatioOptions)}
                             {renderPromptSelect('lighting', t.lightingLabel, lightingOptions)}
-                            {renderPromptSelect('videoStyle', t.videoStyleLabel, videoStyleOptions)}
+                            {renderPromptSelect('videoStyle', t.videoStyleLabel, videoStyleOptions, false,
+                                <div className="flex items-center gap-2 whitespace-nowrap" title={t.enhanceToRealisticTooltip}>
+                                    <input 
+                                        type="checkbox" 
+                                        id="enhance-to-realistic" 
+                                        checked={enhanceToRealistic} 
+                                        onChange={(e) => setEnhanceToRealistic(e.target.checked)} 
+                                        className="w-4 h-4 text-cyan-600 bg-slate-100 border-slate-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600"
+                                    />
+                                    <label htmlFor="enhance-to-realistic" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                                        {t.enhanceToRealisticLabel}
+                                    </label>
+                                </div>
+                            )}
                             {renderPromptSelect('videoMood', t.videoMoodLabel, videoMoodOptions)}
                             {modelTarget === 'veo3' && renderPromptInput('sound', t.soundLabel, placeholders[uiLang].sound)}
                             {modelTarget === 'veo3' && renderPromptInput('dialogue', t.dialogueLabel, placeholders[uiLang].dialogue, false, 2,
@@ -750,26 +786,26 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                         </div>
 
                         <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{t.generationModeLabel}</label>
-                                <div className="flex-grow w-full sm:w-auto flex items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t.generationModeLabel}</label>
+                                <div className="flex w-full sm:w-auto items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
                                     <button 
                                         onClick={() => setGenerationMode('structured')} 
-                                        className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'structured' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
+                                        className={`w-1/2 sm:w-auto px-4 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'structured' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
                                         title={t.structuredModeTooltip}
                                     >
                                         {t.structuredMode}
                                     </button>
                                     <button 
                                         onClick={() => setGenerationMode('creative')} 
-                                        className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'creative' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
+                                        className={`w-1/2 sm:w-auto px-4 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'creative' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
                                         title={t.creativeModeTooltip}
                                     >
                                         {t.creativeMode}
                                     </button>
                                 </div>
                             </div>
-
+                            
                             <div className="flex flex-col sm:flex-row gap-3">
                                 {isLoading ? (
                                     <div className="w-full h-12 bg-slate-200 dark:bg-slate-700 rounded-md overflow-hidden relative flex items-center justify-center">

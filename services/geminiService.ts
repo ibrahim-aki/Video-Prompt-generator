@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import type { PromptParts, PromptPartLang } from '../types';
 
@@ -18,6 +19,7 @@ const jsonVeo3Structure = `
   "place": { "id": "...", "en": "..." },
   "time": { "id": "...", "en": "..." },
   "cameraMovement": { "id": "...", "en": "..." },
+  "aspectRatio": { "id": "...", "en": "..." },
   "lighting": { "id": "...", "en": "..." },
   "videoStyle": { "id": "...", "en": "..." },
   "videoMood": { "id": "...", "en": "..." },
@@ -36,6 +38,7 @@ const jsonVeo2Structure = `
   "place": { "id": "...", "en": "..." },
   "time": { "id": "...", "en": "..." },
   "cameraMovement": { "id": "...", "en": "..." },
+  "aspectRatio": { "id": "...", "en": "..." },
   "lighting": { "id": "...", "en": "..." },
   "videoStyle": { "id": "...", "en": "..." },
   "videoMood": { "id": "...", "en": "..." },
@@ -48,6 +51,7 @@ const validOptions = {
     subject: `["Asian person", "African person", "European person", "Hispanic person", "Middle Eastern person", "Children", "Elderly person", "Futuristic robot", "Fantasy creature", "Animal (specific)"]`,
     time: `["Morning", "Daytime", "Afternoon", "Golden hour", "Night", "Dawn", "Dusk"]`,
     cameraMovement: `["Wide shot", "Medium shot", "Close-up shot", "Low-angle shot", "High-angle shot", "Dolly zoom", "Tracking shot", "Handheld", "Drone shot"]`,
+    aspectRatio: `["16:9", "9:16", "1:1", "4:3", "3:4"]`,
     lighting: `["Cinematic lighting", "Natural light", "Rembrandt lighting", "Neon light", "High-key lighting", "Low-key lighting", "Backlight"]`,
     videoStyle: `["Cinematic", "Hyperrealistic", "Anime style", "Vintage film", "Fantasy", "Cyberpunk", "Documentary", "Stop-motion", "Watercolor painting"]`,
     videoMood: `["Cheerful", "Mysterious", "Dramatic", "Calm", "Epic", "Nostalgic", "Tense", "Romantic", "Disappointed", "Sad"]`
@@ -58,6 +62,7 @@ For the following fields, you MUST choose a value from the provided list for the
 - subject: ${validOptions.subject}
 - time: ${validOptions.time}
 - cameraMovement: ${validOptions.cameraMovement}
+- aspectRatio: ${validOptions.aspectRatio}
 - lighting: ${validOptions.lighting}
 - videoStyle: ${validOptions.videoStyle}
 - videoMood: ${validOptions.videoMood}
@@ -77,7 +82,8 @@ export const generatePrompt = async (
     lockedParts: { subject: PromptPartLang, subjectDetails: PromptPartLang } | null,
     modelTarget: 'veo3' | 'veo2',
     generationMode: 'structured' | 'creative',
-    currentParts: PromptParts
+    currentParts: PromptParts,
+    enhanceToRealistic: boolean
 ): Promise<PromptParts> => {
     const model = "gemini-2.5-flash";
     
@@ -90,6 +96,31 @@ export const generatePrompt = async (
         : "";
     const jsonStructure = isVeo2 ? jsonVeo2Structure : jsonVeo3Structure;
 
+    const realismEnhancementInstruction = enhanceToRealistic ? `
+**Realism Enhancement Activated**: The user wants to enhance the final output for realism and quality. You MUST act as an expert cinematographer and photographer. Your task is to intelligently inject hyper-realistic and cinematic details into the 'details' and 'negativePrompt' fields based on the user's specific choices. Do NOT change the user's selected values in the dropdowns (like 'videoStyle', 'cameraMovement', etc.).
+
+**Contextual Enhancement Rules:**
+
+1.  **Analyze all User Inputs**: Carefully examine the user's choices for \`videoStyle\`, \`cameraMovement\`, \`lighting\`, \`subject\`, etc.
+2.  **Inject Specific Technical Details**: Based on the context, add highly specific and relevant technical details into the 'details' field. These details should complement and elevate the user's existing prompt.
+    *   **Example (Camera Movement):**
+        *   If \`cameraMovement\` is 'Drone shot', add details like: "filmed with a DJI Mavic 3 Pro drone, smooth sweeping motion, wide-angle lens for a vast landscape view".
+        *   If \`cameraMovement\` is 'Close-up shot', add details like: "using a 100mm macro lens, tack-sharp focus on the subject's eyes, extremely shallow depth of field to isolate the subject".
+        *   If \`cameraMovement\` is 'Handheld', add: "subtle, realistic camera shake to imply immediacy, as if filmed on a Sony a7S III".
+    *   **Example (Video Style):**
+        *   If \`videoStyle\` is 'Hyperrealistic' or 'Cinematic', add professional terms: "shot on ARRI Alexa camera, anamorphic lens, meticulous detail, 8K, UHD, professional color grading".
+        *   If \`videoStyle\` is 'Vintage film', add: "emulating the look of 16mm film stock, visible film grain, slight color desaturation, subtle light leaks and gate weave".
+        *   If \`videoStyle\` is 'Anime style', enhance *that* style: "in the style of Makoto Shinkai, high-fidelity background art, detailed cell shading, dynamic lighting effects, beautiful lens flares".
+    *   **Example (Lighting):**
+        *   If \`lighting\` is 'Neon light', add: "vibrant neon glow casting colorful reflections on wet surfaces, high contrast, bloom effect".
+3.  **Strengthen Negative Prompt Contextually**: The 'negativePrompt' MUST be significantly strengthened based on the desired style.
+    *   For any realistic style, add a comprehensive list: '3D, CGI, render, animation, cartoon, illustration, painting, video game, smooth skin, airbrushed, uncanny valley, disfigured, bad anatomy, blurry, low resolution, worst quality, watermark, text, signature'.
+    *   For 'Anime style', you should *not* add 'animation, cartoon, illustration'. Instead, you might add 'photorealistic, 3D render' to keep it in the 2D anime aesthetic.
+    *   For 'Vintage film', you might add 'digital noise, clean image, 4K, sharp focus' to ensure an authentic old-film look.
+
+**Your goal is to be a smart collaborator, not a dumb keyword injector. The final output should feel like a professional cinematographer refined the user's idea.**
+` : '';
+
     if (generationMode === 'creative') {
         systemInstruction = `You are a world-class creative director and cinematic storyteller. Your task is to take a user's potentially incomplete ideas (provided in a JSON object) and develop them into a complete, compelling, and visually rich scene.
 1.  **Analyze and Enhance**: Look at the user's input. Use their provided values as a core foundation. **Enhance and build upon their ideas**, making the scene richer and more coherent. Do not simply replace their choices, but perfect them.
@@ -98,6 +129,7 @@ export const generatePrompt = async (
 4.  **Translate**: For every single component, you MUST provide both an Indonesian ('id') and an English ('en') translation. The English version should be concise and optimized for an AI model.
 5.  **Negative Prompt**: ${negativePromptInstruction}
 6.  **Format Output**: Your final response MUST be ONLY the completed JSON object. Do not include any commentary or markdown formatting. Just the raw JSON.
+${realismEnhancementInstruction}
 ${optionsInstruction}
 ${modelDescription}
 The JSON structure to fill is:
@@ -116,6 +148,7 @@ ${jsonStructure}`;
 5.  **Negative Prompt**: ${negativePromptInstruction}
 6.  **Format Output**: Your final response MUST be ONLY the completed JSON object. Do not include any commentary or markdown formatting. Just the raw JSON.
 ${keepSubjectInstruction}
+${realismEnhancementInstruction}
 ${optionsInstruction}
 ${modelDescription}
 The JSON structure to complete is:
@@ -151,6 +184,7 @@ ${jsonStructure}`;
           place: createEmptyPromptPartLang(),
           time: createEmptyPromptPartLang(),
           cameraMovement: createEmptyPromptPartLang(),
+          aspectRatio: createEmptyPromptPartLang(),
           lighting: createEmptyPromptPartLang(),
           videoStyle: createEmptyPromptPartLang(),
           videoMood: createEmptyPromptPartLang(),
