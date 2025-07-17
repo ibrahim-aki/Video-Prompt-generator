@@ -93,26 +93,48 @@ const generateFakeMessage = () => {
     return randomTemplate();
 };
 
+// Define a type for our message object for stable keys
+interface FakeMessage {
+    id: number;
+    text: string;
+}
+
+let messageIdCounter = 0;
+
 const FakeChat: React.FC = () => {
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<FakeMessage[]>([]);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // Initial messages to fill the screen
-        const initialMessages = Array.from({ length: 10 }, () => generateFakeMessage());
+        const initialMessages = Array.from({ length: 15 }, () => ({
+            id: messageIdCounter++,
+            text: generateFakeMessage()
+        }));
         setMessages(initialMessages);
 
         const interval = setInterval(() => {
-            setMessages(prev => [...prev.slice(prev.length > 50 ? 1 : 0), generateFakeMessage()]);
-        }, 2000); // Add a new message every 2 seconds for a more active feel
+            setMessages(prev => {
+                const newMessage = { id: messageIdCounter++, text: generateFakeMessage() };
+                const nextMessages = [...prev, newMessage];
+                // Keep the array size manageable to avoid performance issues
+                if (nextMessages.length > 50) {
+                    return nextMessages.slice(1);
+                }
+                return nextMessages;
+            });
+        }, 2500); // Slower interval for a calmer feel
 
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        // Auto-scroll to bottom
+        // Auto-scroll to bottom with smooth behavior for a much better feel
         if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scrollTo({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
         }
     }, [messages]);
 
@@ -120,10 +142,10 @@ const FakeChat: React.FC = () => {
         <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700/50 h-96 lg:h-full flex flex-col">
             <h3 className="font-bold text-lg mb-4 text-slate-800 dark:text-white flex-shrink-0">Aktivitas Terbaru</h3>
             <div ref={chatContainerRef} className="overflow-y-auto space-y-3 flex-grow h-0 pr-2">
-                {messages.map((msg, index) => (
-                    // Use a unique key based on message and index to prevent re-render issues
-                    <p key={`${msg}-${index}`} className="text-sm text-slate-600 dark:text-slate-300 animate-fade-in">
-                        {msg}
+                {messages.map((msg) => (
+                    // Use the stable, unique ID for the key. Animation class is removed for a cleaner, smoother scroll effect.
+                    <p key={msg.id} className="text-sm text-slate-600 dark:text-slate-300">
+                        {msg.text}
                     </p>
                 ))}
             </div>
