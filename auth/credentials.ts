@@ -5,7 +5,7 @@ export const credentials = [
     { username: 'editor', password: 'editorpass' },
     { username: 'viewer', password: 'viewerpass' },
     { username: 'testuser', password: 'test' },
-    { username: 'demo', password: 'demo' },
+    { username: 'demo', password: 'demo123' },
     { username: 'guest', password: 'guest' },
     { username: 'operator', password: 'op123' },
     { username: 'manager', password: 'manpass' },
