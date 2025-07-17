@@ -663,7 +663,10 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     };
 
     const handleLoadFromHistory = (entry: HistoryEntry) => {
-        setPromptParts(entry.parts);
+        // BUG FIX: Merge loaded parts with initial state to prevent crashes from old/incomplete history data.
+        const completeParts = { ...initialPromptPartsState, ...entry.parts };
+        setPromptParts(completeParts);
+        
         setFinalPromptId(entry.finalPromptId);
         setFinalPromptEn(entry.finalPromptEn);
         setFinalNegativePromptId(entry.finalNegativePromptId);
@@ -689,11 +692,13 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
 
     const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => {
         const dataLangKey: 'id' | 'en' = uiLang === 'id' ? 'id' : 'en';
+        // Safeguard against undefined parts to prevent crashes
+        const value = promptParts[part] ? promptParts[part][dataLangKey] : '';
         return (
             <PromptInput
-                id={part} label={label} value={(promptParts[part][dataLangKey])}
+                id={part} label={label} value={value}
                 onChange={(e) => {
-                    const current = promptParts[part];
+                    const current = promptParts[part] || createEmptyPromptPartLang();
                     const keyToUpdate = uiLang === 'id' ? 'id' : 'en';
                     handlePartChange(part, { ...current, [keyToUpdate]: e.target.value });
                 }}
@@ -703,7 +708,8 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     };
 
     const renderPromptSelect = (part: keyof PromptParts, label: string, options: LocalizedOption[], required: boolean = false, children?: React.ReactNode) => {
-        const currentPartValue = promptParts[part];
+        // Safeguard against undefined parts
+        const currentPartValue = promptParts[part] || createEmptyPromptPartLang();
         const selectedOption = options.find(opt => opt.id === currentPartValue.id && opt.en === currentPartValue.en);
         const displayValue = selectedOption ? (selectedOption[uiLang] || selectedOption.en) : (uiLang === 'id' ? currentPartValue.id : currentPartValue.en);
         return (
