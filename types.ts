@@ -26,4 +26,6 @@ export interface HistoryEntry {
   parts: PromptParts;
   finalPromptId: string;
   finalPromptEn: string;
+  finalNegativePromptId: string;
+  finalNegativePromptEn: string;
 }

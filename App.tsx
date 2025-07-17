@@ -566,7 +566,6 @@ const App: React.FC = () => {
     
     const handleGenerateWithAI = async () => {
         setIsLoading(true);
-        setShowResults(false);
         try {
             const lockedParts = keepSubject ? { subject: promptParts.subject, subjectDetails: promptParts.subjectDetails } : null;
             const newParts = await generatePrompt(lockedParts, modelTarget, generationMode, promptParts);
@@ -635,36 +634,56 @@ const App: React.FC = () => {
         }
     };
     
-    const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => (
-        <PromptInput
-            id={part}
-            label={label}
-            value={promptParts[part][uiLang] || promptParts[part].id}
-            onChange={(e) => {
-                const current = promptParts[part];
-                handlePartChange(part, { ...current, [uiLang]: e.target.value });
-            }}
-            placeholder={placeholder}
-            rows={rows}
-            required={required}
-        >
-          {children}
-        </PromptInput>
-    );
+    const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => {
+        // Bind to 'en' field, unless UI is 'id'. This prevents state bugs with other languages.
+        const dataLangKey: keyof PromptPartLang = uiLang === 'id' ? 'id' : 'en';
+        
+        return (
+            <PromptInput
+                id={part}
+                label={label}
+                value={(promptParts[part][dataLangKey]) || (promptParts[part]['id'])}
+                onChange={(e) => {
+                    const current = promptParts[part];
+                    handlePartChange(part, { ...current, [dataLangKey]: e.target.value });
+                }}
+                placeholder={placeholder}
+                rows={rows}
+                required={required}
+            >
+              {children}
+            </PromptInput>
+        );
+    };
 
-    const renderPromptSelect = (part: keyof PromptParts, label: string, options: LocalizedOption[], required: boolean = false, children?: React.ReactNode) => (
-        <PromptSelect
-            id={part}
-            label={label}
-            value={promptParts[part][uiLang] || promptParts[part].id}
-            onChange={(e) => handleSelectChange(part, e)}
-            options={getLocalizedOptions(options)}
-            placeholder={t.selectPlaceholder}
-            required={required}
-        >
-            {children}
-        </PromptSelect>
-    );
+    const renderPromptSelect = (part: keyof PromptParts, label: string, options: LocalizedOption[], required: boolean = false, children?: React.ReactNode) => {
+        const currentPartValue = promptParts[part];
+        // Find the full option object from the master list based on the canonical 'id' value in the state
+        const selectedOption = options.find(opt => opt.id === currentPartValue.id);
+
+        let displayValue: string;
+        if (selectedOption) {
+            // If a matching option is found, use its value for the current UI language, falling back to English.
+            displayValue = selectedOption[uiLang] || selectedOption.en;
+        } else {
+            // For AI-generated values not in the list, use the value from the state based on the current language.
+            displayValue = uiLang === 'id' ? currentPartValue.id : currentPartValue.en;
+        }
+
+        return (
+            <PromptSelect
+                id={part}
+                label={label}
+                value={displayValue || ''}
+                onChange={(e) => handleSelectChange(part, e)}
+                options={getLocalizedOptions(options)}
+                placeholder={t.selectPlaceholder}
+                required={required}
+            >
+                {children}
+            </PromptSelect>
+        );
+    };
     
     return (
         <div className="min-h-screen container mx-auto p-4 sm:p-6 lg:p-8">
@@ -679,9 +698,9 @@ const App: React.FC = () => {
                 </div>
             </header>
 
-            <main className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8">
+            <main className="flex flex-col items-center w-full gap-8">
                 {/* Form Section */}
-                <div className="space-y-6 bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
+                <div className="w-full max-w-4xl space-y-6 bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-start p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg">
                         <div className="flex items-center gap-2">
                            <label className="font-semibold text-slate-700 dark:text-slate-300">{t.targetModelLabel}</label>
@@ -715,7 +734,9 @@ const App: React.FC = () => {
                                 <label htmlFor="clear-intonation" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.clearIntonationLabel}</label>
                             </div>
                         )}
-                        {renderPromptInput('details', t.additionalDetailsLabel, placeholders[uiLang].details)}
+                        <div className="md:col-span-2">
+                           {renderPromptInput('details', t.additionalDetailsLabel, placeholders[uiLang].details)}
+                        </div>
                     </div>
 
                     <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700">
@@ -758,7 +779,7 @@ const App: React.FC = () => {
 
                 {/* Results Section */}
                 {showResults && (
-                    <div className="mt-8 lg:mt-0 space-y-6">
+                    <div className="w-full max-w-4xl space-y-6">
                         <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
                             <h3 className="text-lg font-semibold mb-3">{t.promptIdViewTitle}</h3>
                             <div className="relative">
