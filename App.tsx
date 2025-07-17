@@ -721,7 +721,7 @@ const App: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                             {renderPromptSelect('subject', t.subjectLabel, subjectOptions, true,
                                 <div className="flex items-center gap-2 whitespace-nowrap">
                                     <input type="checkbox" id="keep-subject" checked={keepSubject} onChange={(e) => setKeepSubject(e.target.checked)} className="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
@@ -744,7 +744,7 @@ const App: React.FC = () => {
                                     <label htmlFor="clear-intonation" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.clearIntonationLabel}</label>
                                 </div>
                             )}
-                            <div className="md:col-span-2">
+                            <div className="md:col-span-1">
                                {renderPromptInput('details', t.additionalDetailsLabel, placeholders[uiLang].details)}
                             </div>
                         </div>
