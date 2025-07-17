@@ -464,6 +464,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     const [finalNegativePromptId, setFinalNegativePromptId] = useState('');
     const [finalNegativePromptEn, setFinalNegativePromptEn] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [keepSubject, setKeepSubject] = useState(false);
     const [clearIntonation, setClearIntonation] = useState(false);
     const [modelTarget, setModelTarget] = useState<ModelTarget>('veo3');
@@ -490,11 +491,20 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
             ];
             
             const subjectPart = [parts.subject?.en, parts.subjectDetails?.en].filter(Boolean).join(' ');
-            const otherParts = order.map(key => parts[key]?.en).filter(Boolean);
+            
+            const otherParts = order.map(key => {
+                // SPECIAL CASE: For the final English prompt, the dialogue should be in Indonesian.
+                if (key === 'dialogue') {
+                    return parts[key]?.id;
+                }
+                return parts[key]?.en;
+            }).filter(Boolean);
+
             let allParts = [subjectPart, ...otherParts].filter(Boolean);
             let prompt = allParts.join(', ');
 
-            if (clearIntonation && modelTarget === 'veo3' && parts.dialogue?.en) {
+            // This check also needs to use the Indonesian dialogue.
+            if (clearIntonation && modelTarget === 'veo3' && parts.dialogue?.id) {
                 prompt += ', spoken with clear intonation';
             }
             return prompt;
@@ -570,34 +580,56 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     
     const handleGenerateWithAI = async () => {
         setIsLoading(true);
+        setProgress(0);
+
+        const progressInterval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 95) return 95;
+                if (prev < 60) return prev + Math.random() * 2.5;
+                if (prev < 90) return prev + Math.random() * 1.2;
+                return prev + 0.5;
+            });
+        }, 100);
+
         try {
             const lockedParts = keepSubject ? { subject: promptParts.subject, subjectDetails: promptParts.subjectDetails } : null;
             const newParts = await generatePrompt(lockedParts, modelTarget, generationMode, promptParts);
-            setPromptParts(newParts);
-            const generatedId = buildFinalPrompt(newParts, 'id');
-            const generatedEn = buildFinalPrompt(newParts, 'en');
-            setFinalPromptId(generatedId);
-            setFinalPromptEn(generatedEn);
-            setFinalNegativePromptId(newParts.negativePrompt.id);
-            setFinalNegativePromptEn(newParts.negativePrompt.en);
-            setShowResults(true);
-            const newHistoryEntry: HistoryEntry = {
-                id: Date.now(),
-                timestamp: new Date().toLocaleString(),
-                parts: newParts,
-                finalPromptId: generatedId,
-                finalPromptEn: generatedEn,
-                finalNegativePromptId: newParts.negativePrompt.id,
-                finalNegativePromptEn: newParts.negativePrompt.en,
-            };
-            const updatedHistory = [newHistoryEntry, ...history];
-            setHistory(updatedHistory);
-            localStorage.setItem('promptHistory', JSON.stringify(updatedHistory));
+            
+            clearInterval(progressInterval);
+            setProgress(100);
+
+            setTimeout(() => {
+                setPromptParts(newParts);
+                const generatedId = buildFinalPrompt(newParts, 'id');
+                const generatedEn = buildFinalPrompt(newParts, 'en');
+                setFinalPromptId(generatedId);
+                setFinalPromptEn(generatedEn);
+                setFinalNegativePromptId(newParts.negativePrompt.id);
+                setFinalNegativePromptEn(newParts.negativePrompt.en);
+                setShowResults(true);
+                
+                const newHistoryEntry: HistoryEntry = {
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleString(),
+                    parts: newParts,
+                    finalPromptId: generatedId,
+                    finalPromptEn: generatedEn,
+                    finalNegativePromptId: newParts.negativePrompt.id,
+                    finalNegativePromptEn: newParts.negativePrompt.en,
+                };
+                const updatedHistory = [newHistoryEntry, ...history];
+                setHistory(updatedHistory);
+                localStorage.setItem('promptHistory', JSON.stringify(updatedHistory));
+
+                setIsLoading(false);
+            }, 500);
+
         } catch (error) {
+            clearInterval(progressInterval);
+            setIsLoading(false);
+            setProgress(0);
             console.error(error);
             alert((error as Error).message);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -739,18 +771,32 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3">
-                                <button onClick={handleGenerateWithAI} disabled={isLoading} className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-bold py-3 px-4 rounded-md hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition-all duration-300 transform hover:scale-105">
-                                    {isLoading ? <Icon type="loader" className="w-5 h-5"/> : <Icon type="rocket" className="w-5 h-5"/>}
-                                    <span>{isLoading ? t.processing : t.generatePromptButton}</span>
-                                </button>
-                                <button onClick={handleReset} title={t.resetFormTooltip} className="inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-3 px-4 rounded-md hover:bg-red-700 transition-colors">
-                                    <Icon type="reset" className="w-5 h-5"/>
-                                    <span>{t.resetFormButton}</span>
-                                </button>
-                                <button onClick={() => setIsHistoryOpen(true)} title={t.historyButtonTooltip} className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white font-bold py-3 px-4 rounded-md hover:bg-orange-600 transition-colors">
-                                    <Icon type="history" className="w-5 h-5"/>
-                                    <span>{t.historyButtonLabel}</span>
-                                </button>
+                                {isLoading ? (
+                                    <div className="w-full h-12 bg-slate-200 dark:bg-slate-700 rounded-md overflow-hidden relative flex items-center justify-center">
+                                        <div
+                                            className="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-100 ease-linear"
+                                            style={{ width: `${progress}%` }}
+                                        ></div>
+                                        <span className="relative z-10 font-bold text-white drop-shadow-md">
+                                            {t.processing} {Math.round(progress)}%
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button onClick={handleGenerateWithAI} className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-bold py-3 px-4 rounded-md hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105">
+                                            <Icon type="rocket" className="w-5 h-5"/>
+                                            <span>{t.generatePromptButton}</span>
+                                        </button>
+                                        <button onClick={handleReset} title={t.resetFormTooltip} className="inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-3 px-4 rounded-md hover:bg-red-700 transition-colors">
+                                            <Icon type="reset" className="w-5 h-5"/>
+                                            <span>{t.resetFormButton}</span>
+                                        </button>
+                                        <button onClick={() => setIsHistoryOpen(true)} title={t.historyButtonTooltip} className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white font-bold py-3 px-4 rounded-md hover:bg-orange-600 transition-colors">
+                                            <Icon type="history" className="w-5 h-5"/>
+                                            <span>{t.historyButtonLabel}</span>
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
