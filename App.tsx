@@ -451,6 +451,7 @@ const App: React.FC = () => {
     const [promptParts, setPromptParts] = useState<PromptParts>(initialPromptPartsState);
     const [finalPromptId, setFinalPromptId] = useState('');
     const [finalPromptEn, setFinalPromptEn] = useState('');
+    const [finalNegativePromptId, setFinalNegativePromptId] = useState('');
     const [finalNegativePromptEn, setFinalNegativePromptEn] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [keepSubject, setKeepSubject] = useState(false);
@@ -548,7 +549,6 @@ const App: React.FC = () => {
         if (selectedOption) {
             handlePartChange(part, { id: selectedOption.id, en: selectedOption.en });
         } else {
-            // Handle cases where the value might not be in the pre-defined list (e.g., loaded from history)
             handlePartChange(part, { id: selectedValue, en: selectedValue });
         }
     };
@@ -558,6 +558,7 @@ const App: React.FC = () => {
         setShowResults(false);
         setFinalPromptId('');
         setFinalPromptEn('');
+        setFinalNegativePromptId('');
         setFinalNegativePromptEn('');
         setKeepSubject(false);
         setClearIntonation(false);
@@ -575,16 +576,18 @@ const App: React.FC = () => {
             const generatedEn = buildFinalPrompt(newParts, 'en');
             setFinalPromptId(generatedId);
             setFinalPromptEn(generatedEn);
+            setFinalNegativePromptId(newParts.negativePrompt.id);
             setFinalNegativePromptEn(newParts.negativePrompt.en);
             setShowResults(true);
 
-            // Save to history
             const newHistoryEntry: HistoryEntry = {
                 id: Date.now(),
                 timestamp: new Date().toLocaleString(),
                 parts: newParts,
                 finalPromptId: generatedId,
                 finalPromptEn: generatedEn,
+                finalNegativePromptId: newParts.negativePrompt.id,
+                finalNegativePromptEn: newParts.negativePrompt.en,
             };
             const updatedHistory = [newHistoryEntry, ...history];
             setHistory(updatedHistory);
@@ -611,7 +614,8 @@ const App: React.FC = () => {
         setPromptParts(entry.parts);
         setFinalPromptId(entry.finalPromptId);
         setFinalPromptEn(entry.finalPromptEn);
-        setFinalNegativePromptEn(entry.parts.negativePrompt.en);
+        setFinalNegativePromptId(entry.finalNegativePromptId);
+        setFinalNegativePromptEn(entry.finalNegativePromptEn);
         setShowResults(true);
         setIsHistoryOpen(false);
     };
@@ -638,7 +642,7 @@ const App: React.FC = () => {
             value={promptParts[part][uiLang] || promptParts[part].id}
             onChange={(e) => {
                 const current = promptParts[part];
-                handlePartChange(part, { ...current, [uiLang]: e.target.value, id: e.target.value });
+                handlePartChange(part, { ...current, [uiLang]: e.target.value });
             }}
             placeholder={placeholder}
             rows={rows}
