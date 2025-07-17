@@ -1,6 +1,6 @@
 export const credentials = [
-    { username: 'admin', password: 'password123' },
-    { username: 'user1', password: 'passuser1' },
+    { username: 'dita', password: 'dodol' },
+    { username: 'enablr', password: 'enablr' },
     { username: 'ibrahim', password: 'ganteng' },
     { username: 'editor', password: 'editorpass' },
     { username: 'viewer', password: 'viewerpass' },
