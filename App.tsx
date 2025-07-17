@@ -546,10 +546,18 @@ const App: React.FC = () => {
         const selectedValue = e.target.value;
         const allOptions = [subjectOptions, timeOptions, cameraMovementOptions, lightingOptions, videoStyleOptions, videoMoodOptions].flat();
         const selectedOption = allOptions.find(opt => opt.id === selectedValue || opt.en === selectedValue || opt.ar === selectedValue || opt.cn === selectedValue || opt.ru === selectedValue || opt[uiLang] === selectedValue);
+        
         if (selectedOption) {
             handlePartChange(part, { id: selectedOption.id, en: selectedOption.en });
         } else {
-            handlePartChange(part, { id: selectedValue, en: selectedValue });
+            // This case handles AI generated values not in the list.
+            // When user re-selects it from dropdown, we find the matching object by its text value.
+            const fallbackOption = allOptions.find(opt => opt[uiLang] === selectedValue);
+            if(fallbackOption){
+                handlePartChange(part, { id: fallbackOption.id, en: fallbackOption.en });
+            } else {
+                handlePartChange(part, { id: selectedValue, en: selectedValue });
+            }
         }
     };
     
@@ -635,17 +643,19 @@ const App: React.FC = () => {
     };
     
     const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => {
-        // Bind to 'en' field, unless UI is 'id'. This prevents state bugs with other languages.
-        const dataLangKey: keyof PromptPartLang = uiLang === 'id' ? 'id' : 'en';
+        const dataLangKey: 'id' | 'en' = uiLang === 'id' ? 'id' : 'en';
         
         return (
             <PromptInput
                 id={part}
                 label={label}
-                value={(promptParts[part][dataLangKey]) || (promptParts[part]['id'])}
+                value={(promptParts[part][dataLangKey])}
                 onChange={(e) => {
                     const current = promptParts[part];
-                    handlePartChange(part, { ...current, [dataLangKey]: e.target.value });
+                    // If we're on the Indonesian UI, update ID. For all other UIs, update EN.
+                    // This prevents data corruption when switching languages.
+                    const keyToUpdate = uiLang === 'id' ? 'id' : 'en';
+                    handlePartChange(part, { ...current, [keyToUpdate]: e.target.value });
                 }}
                 placeholder={placeholder}
                 rows={rows}
@@ -658,15 +668,12 @@ const App: React.FC = () => {
 
     const renderPromptSelect = (part: keyof PromptParts, label: string, options: LocalizedOption[], required: boolean = false, children?: React.ReactNode) => {
         const currentPartValue = promptParts[part];
-        // Find the full option object from the master list based on the canonical 'id' value in the state
         const selectedOption = options.find(opt => opt.id === currentPartValue.id);
 
         let displayValue: string;
         if (selectedOption) {
-            // If a matching option is found, use its value for the current UI language, falling back to English.
             displayValue = selectedOption[uiLang] || selectedOption.en;
         } else {
-            // For AI-generated values not in the list, use the value from the state based on the current language.
             displayValue = uiLang === 'id' ? currentPartValue.id : currentPartValue.en;
         }
 
@@ -686,144 +693,150 @@ const App: React.FC = () => {
     };
     
     return (
-        <div className="min-h-screen container mx-auto p-4 sm:p-6 lg:p-8">
-            <header className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                    <Icon type="sparkles" className="w-8 h-8 text-cyan-500" />
-                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t.title}</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                    <LangSwitcher uiLang={uiLang} setUiLang={setUiLang} />
-                    <ThemeSwitcher theme={theme} setTheme={setTheme} uiLang={uiLang}/>
+        <div className="flex flex-col min-h-screen">
+            <header className="w-full py-4 border-b border-slate-200 dark:border-slate-700/50 sticky top-0 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-sm z-30">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <Icon type="sparkles" className="w-8 h-8 text-cyan-500" />
+                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t.title}</h1>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <LangSwitcher uiLang={uiLang} setUiLang={setUiLang} />
+                        <ThemeSwitcher theme={theme} setTheme={setTheme} uiLang={uiLang}/>
+                    </div>
                 </div>
             </header>
 
-            <main className="flex flex-col items-center w-full gap-8">
-                {/* Form Section */}
-                <div className="w-full max-w-4xl space-y-6 bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
-                    <div className="flex flex-col sm:flex-row gap-4 items-center justify-start p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                           <label className="font-semibold text-slate-700 dark:text-slate-300">{t.targetModelLabel}</label>
-                           <div className="flex items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
-                               <button onClick={() => setModelTarget('veo3')} className={`px-3 py-1 text-sm font-bold rounded-full transition-colors ${modelTarget === 'veo3' ? 'bg-cyan-500 text-white' : 'text-slate-600 dark:text-slate-300'}`}>VEO3</button>
-                               <button onClick={() => setModelTarget('veo2')} className={`px-3 py-1 text-sm font-bold rounded-full transition-colors ${modelTarget === 'veo2' ? 'bg-cyan-500 text-white' : 'text-slate-600 dark:text-slate-300'}`}>VEO2</button>
-                           </div>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {renderPromptSelect('subject', t.subjectLabel, subjectOptions, true,
-                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                <input type="checkbox" id="keep-subject" checked={keepSubject} onChange={(e) => setKeepSubject(e.target.checked)} className="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                <label htmlFor="keep-subject" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.keepSubjectLabel}</label>
+            <main className="flex-grow w-full container mx-auto p-4 sm:p-6 lg:px-8">
+                <div className="max-w-4xl mx-auto space-y-8">
+                    {/* Form Section */}
+                    <div className="w-full space-y-6 bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
+                        <div className="flex flex-col sm:flex-row gap-4 items-center justify-start p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg">
+                            <div className="flex items-center gap-2">
+                               <label className="font-semibold text-slate-700 dark:text-slate-300">{t.targetModelLabel}</label>
+                               <div className="flex items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
+                                   <button onClick={() => setModelTarget('veo3')} className={`px-3 py-1 text-sm font-bold rounded-full transition-colors ${modelTarget === 'veo3' ? 'bg-cyan-500 text-white' : 'text-slate-600 dark:text-slate-300'}`}>VEO3</button>
+                                   <button onClick={() => setModelTarget('veo2')} className={`px-3 py-1 text-sm font-bold rounded-full transition-colors ${modelTarget === 'veo2' ? 'bg-cyan-500 text-white' : 'text-slate-600 dark:text-slate-300'}`}>VEO2</button>
+                               </div>
                             </div>
-                        )}
-                        {renderPromptInput('subjectDetails', t.subjectDetailsLabel, placeholders[uiLang].subjectDetails)}
-                        {renderPromptInput('action', t.actionLabel, placeholders[uiLang].action, true)}
-                        {renderPromptInput('expression', t.expressionLabel, placeholders[uiLang].expression)}
-                        {renderPromptInput('place', t.placeLabel, placeholders[uiLang].place, true)}
-                        {renderPromptSelect('time', t.timeLabel, timeOptions)}
-                        {renderPromptSelect('cameraMovement', t.cameraMovementLabel, cameraMovementOptions)}
-                        {renderPromptSelect('lighting', t.lightingLabel, lightingOptions)}
-                        {renderPromptSelect('videoStyle', t.videoStyleLabel, videoStyleOptions)}
-                        {renderPromptSelect('videoMood', t.videoMoodLabel, videoMoodOptions)}
-                        {modelTarget === 'veo3' && renderPromptInput('sound', t.soundLabel, placeholders[uiLang].sound)}
-                        {modelTarget === 'veo3' && renderPromptInput('dialogue', t.dialogueLabel, placeholders[uiLang].dialogue, false, 2,
-                            <div className="flex items-center gap-2 whitespace-nowrap" title={t.clearIntonationTooltip}>
-                                <input type="checkbox" id="clear-intonation" checked={clearIntonation} onChange={(e) => setClearIntonation(e.target.checked)} className="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-                                <label htmlFor="clear-intonation" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.clearIntonationLabel}</label>
-                            </div>
-                        )}
-                        <div className="md:col-span-2">
-                           {renderPromptInput('details', t.additionalDetailsLabel, placeholders[uiLang].details)}
                         </div>
-                    </div>
 
-                    <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{t.generationModeLabel}</label>
-                            <div className="flex-grow w-full sm:w-auto flex items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
-                                <button 
-                                    onClick={() => setGenerationMode('structured')} 
-                                    className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'structured' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
-                                    title={t.structuredModeTooltip}
-                                >
-                                    {t.structuredMode}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {renderPromptSelect('subject', t.subjectLabel, subjectOptions, true,
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <input type="checkbox" id="keep-subject" checked={keepSubject} onChange={(e) => setKeepSubject(e.target.checked)} className="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                    <label htmlFor="keep-subject" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.keepSubjectLabel}</label>
+                                </div>
+                            )}
+                            {renderPromptInput('subjectDetails', t.subjectDetailsLabel, placeholders[uiLang].subjectDetails)}
+                            {renderPromptInput('action', t.actionLabel, placeholders[uiLang].action, true)}
+                            {renderPromptInput('expression', t.expressionLabel, placeholders[uiLang].expression)}
+                            {renderPromptInput('place', t.placeLabel, placeholders[uiLang].place, true)}
+                            {renderPromptSelect('time', t.timeLabel, timeOptions)}
+                            {renderPromptSelect('cameraMovement', t.cameraMovementLabel, cameraMovementOptions)}
+                            {renderPromptSelect('lighting', t.lightingLabel, lightingOptions)}
+                            {renderPromptSelect('videoStyle', t.videoStyleLabel, videoStyleOptions)}
+                            {renderPromptSelect('videoMood', t.videoMoodLabel, videoMoodOptions)}
+                            {modelTarget === 'veo3' && renderPromptInput('sound', t.soundLabel, placeholders[uiLang].sound)}
+                            {modelTarget === 'veo3' && renderPromptInput('dialogue', t.dialogueLabel, placeholders[uiLang].dialogue, false, 2,
+                                <div className="flex items-center gap-2 whitespace-nowrap" title={t.clearIntonationTooltip}>
+                                    <input type="checkbox" id="clear-intonation" checked={clearIntonation} onChange={(e) => setClearIntonation(e.target.checked)} className="w-4 h-4 text-cyan-600 bg-gray-100 border-gray-300 rounded focus:ring-cyan-500 dark:focus:ring-cyan-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                                    <label htmlFor="clear-intonation" className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.clearIntonationLabel}</label>
+                                </div>
+                            )}
+                            <div className="md:col-span-2">
+                               {renderPromptInput('details', t.additionalDetailsLabel, placeholders[uiLang].details)}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{t.generationModeLabel}</label>
+                                <div className="flex-grow w-full sm:w-auto flex items-center bg-slate-200 dark:bg-slate-700 p-1 rounded-full">
+                                    <button 
+                                        onClick={() => setGenerationMode('structured')} 
+                                        className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'structured' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
+                                        title={t.structuredModeTooltip}
+                                    >
+                                        {t.structuredMode}
+                                    </button>
+                                    <button 
+                                        onClick={() => setGenerationMode('creative')} 
+                                        className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'creative' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
+                                        title={t.creativeModeTooltip}
+                                    >
+                                        {t.creativeMode}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <button onClick={handleGenerateWithAI} disabled={isLoading} className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-bold py-3 px-4 rounded-md hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition-all duration-300 transform hover:scale-105">
+                                    {isLoading ? <Icon type="loader" className="w-5 h-5"/> : <Icon type="rocket" className="w-5 h-5"/>}
+                                    <span>{isLoading ? t.processing : t.generatePromptButton}</span>
                                 </button>
-                                <button 
-                                    onClick={() => setGenerationMode('creative')} 
-                                    className={`w-1/2 px-3 py-1.5 text-sm font-bold rounded-full transition-colors text-center ${generationMode === 'creative' ? 'bg-cyan-500 text-white shadow' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-600/50'}`}
-                                    title={t.creativeModeTooltip}
-                                >
-                                    {t.creativeMode}
+                                <button onClick={handleReset} title={t.resetFormTooltip} className="inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-3 px-4 rounded-md hover:bg-red-700 transition-colors">
+                                    <Icon type="reset" className="w-5 h-5"/>
+                                    <span>{t.resetFormButton}</span>
+                                </button>
+                                <button onClick={() => setIsHistoryOpen(true)} title={t.historyButtonTooltip} className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white font-bold py-3 px-4 rounded-md hover:bg-orange-600 transition-colors">
+                                    <Icon type="history" className="w-5 h-5"/>
+                                    <span>{t.historyButtonLabel}</span>
                                 </button>
                             </div>
                         </div>
-
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <button onClick={handleGenerateWithAI} disabled={isLoading} className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-bold py-3 px-4 rounded-md hover:bg-emerald-700 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition-all duration-300 transform hover:scale-105">
-                                {isLoading ? <Icon type="loader" className="w-5 h-5"/> : <Icon type="rocket" className="w-5 h-5"/>}
-                                <span>{isLoading ? t.processing : t.generatePromptButton}</span>
-                            </button>
-                            <button onClick={handleReset} title={t.resetFormTooltip} className="inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-3 px-4 rounded-md hover:bg-red-700 transition-colors">
-                                <Icon type="reset" className="w-5 h-5"/>
-                                <span>{t.resetFormButton}</span>
-                            </button>
-                            <button onClick={() => setIsHistoryOpen(true)} title={t.historyButtonTooltip} className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white font-bold py-3 px-4 rounded-md hover:bg-orange-600 transition-colors">
-                                <Icon type="history" className="w-5 h-5"/>
-                                <span>{t.historyButtonLabel}</span>
-                            </button>
-                        </div>
                     </div>
+
+                    {/* Results Section */}
+                    {showResults && (
+                        <div className="w-full space-y-6">
+                            <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
+                                <h3 className="text-lg font-semibold mb-3">{t.promptIdViewTitle}</h3>
+                                <div className="relative">
+                                    <textarea readOnly value={finalPromptId} placeholder={t.promptIdPlaceholder} rows={5} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
+                                    <button onClick={() => handleCopy(finalPromptId, 'id')} title={t.copyIdButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
+                                        <Icon type="copy" className="w-5 h-5" />
+                                    </button>
+                                    {copyStatus.id && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
+                                <h3 className="text-lg font-semibold mb-3">{t.promptEnViewTitle}</h3>
+                                <div className="relative">
+                                    <textarea readOnly value={finalPromptEn} placeholder={t.promptEnPlaceholder} rows={5} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
+                                    <button onClick={() => handleCopy(finalPromptEn, 'en')} title={t.copyEnButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
+                                        <Icon type="copy" className="w-5 h-5" />
+                                    </button>
+                                    {copyStatus.en && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-red-500/50 dark:border-red-500/50">
+                                <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">{t.negativePromptTitle}</h3>
+                                <div className="relative">
+                                    <textarea readOnly value={finalNegativePromptEn} placeholder={t.negativePromptPlaceholder} rows={3} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
+                                    <button onClick={() => handleCopy(finalNegativePromptEn, 'neg')} title={t.copyNegButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
+                                        <Icon type="copy" className="w-5 h-5" />
+                                    </button>
+                                    {copyStatus.neg && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {/* Results Section */}
-                {showResults && (
-                    <div className="w-full max-w-4xl space-y-6">
-                        <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
-                            <h3 className="text-lg font-semibold mb-3">{t.promptIdViewTitle}</h3>
-                            <div className="relative">
-                                <textarea readOnly value={finalPromptId} placeholder={t.promptIdPlaceholder} rows={5} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
-                                <button onClick={() => handleCopy(finalPromptId, 'id')} title={t.copyIdButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
-                                    <Icon type="copy" className="w-5 h-5" />
-                                </button>
-                                {copyStatus.id && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50">
-                            <h3 className="text-lg font-semibold mb-3">{t.promptEnViewTitle}</h3>
-                            <div className="relative">
-                                <textarea readOnly value={finalPromptEn} placeholder={t.promptEnPlaceholder} rows={5} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
-                                <button onClick={() => handleCopy(finalPromptEn, 'en')} title={t.copyEnButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
-                                    <Icon type="copy" className="w-5 h-5" />
-                                </button>
-                                {copyStatus.en && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-slate-800/50 p-6 rounded-xl shadow-lg border border-red-500/50 dark:border-red-500/50">
-                            <h3 className="text-lg font-semibold mb-3 text-red-600 dark:text-red-400">{t.negativePromptTitle}</h3>
-                            <div className="relative">
-                                <textarea readOnly value={finalNegativePromptEn} placeholder={t.negativePromptPlaceholder} rows={3} className="w-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md p-3 pr-12 text-sm resize-y" />
-                                <button onClick={() => handleCopy(finalNegativePromptEn, 'neg')} title={t.copyNegButton} className="absolute top-2 ltr:right-2 rtl:left-2 p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors">
-                                    <Icon type="copy" className="w-5 h-5" />
-                                </button>
-                                {copyStatus.neg && <div className="absolute top-10 ltr:right-2 rtl:left-2 bg-slate-900 text-white text-xs rounded py-1 px-2">{t.copied}</div>}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </main>
 
-            <footer className="text-center mt-12 py-6 border-t border-slate-200 dark:border-slate-700">
-                <div className="flex justify-center items-center gap-6 mb-4">
-                    <a href="https://www.tiktok.com/@tongsolop" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors" aria-label="TikTok">
-                        <Icon type="tiktok" className="w-6 h-6"/>
-                    </a>
-                    <a href="https://www.youtube.com/@tongsolop" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors" aria-label="YouTube">
-                        <Icon type="youtube" className="w-7 h-7"/>
-                    </a>
+            <footer className="w-full mt-12 py-6 border-t border-slate-200 dark:border-slate-700">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-center items-center gap-6 mb-4">
+                        <a href="https://www.tiktok.com/@tongsolop" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors" aria-label="TikTok">
+                            <Icon type="tiktok" className="w-6 h-6"/>
+                        </a>
+                        <a href="https://www.youtube.com/@tongsolop" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500 transition-colors" aria-label="YouTube">
+                            <Icon type="youtube" className="w-7 h-7"/>
+                        </a>
+                    </div>
+                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">{t.credit}</p>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">{t.credit}</p>
             </footer>
 
             <HistoryModal 
