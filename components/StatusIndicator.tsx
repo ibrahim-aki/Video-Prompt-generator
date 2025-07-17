@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const statuses = [
-    { text: 'Busy', color: 'bg-yellow-500' },
+    { text: 'Operational', color: 'bg-green-500' },
+    { text: 'High Load', color: 'bg-yellow-500' },
 ];
 
 const StatusIndicator: React.FC = () => {
@@ -24,7 +25,7 @@ const StatusIndicator: React.FC = () => {
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${currentStatus.color} opacity-75`}></span>
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${currentStatus.color}`}></span>
             </span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">{currentStatus.text}</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300 w-24 ltr:text-left rtl:text-right">{currentStatus.text}</span>
         </div>
     );
 };

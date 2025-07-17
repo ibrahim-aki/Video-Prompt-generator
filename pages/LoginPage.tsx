@@ -48,9 +48,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 }} />
             </div>
             <div className="w-full max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     
-                    {/* Middle Column: Login Form (Source Order 1, Visual Order 2) */}
+                    {/* Middle Column: Login Form (Source Order 1, Visual Order 2 on LG) */}
+                    {/* On mobile, this will appear FIRST */}
                     <div className="lg:col-span-6 lg:order-2 flex flex-col justify-center h-full w-full">
                         <div className="w-full max-w-md mx-auto bg-white dark:bg-slate-800/50 p-8 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700/50">
                             <div className="text-center mb-8">
@@ -91,15 +92,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                         </div>
                     </div>
 
-                    {/* Left Column: Changelog (Source Order 2, Visual Order 1) */}
+                    {/* Right Column: Fake Chat (Source Order 2, Visual Order 3 on LG) */}
+                    {/* On mobile, this will appear SECOND */}
+                    <div className="lg:col-span-3 lg:order-3 w-full">
+                        <FakeChat />
+                    </div>
+                    
+                    {/* Left Column: Changelog (Source Order 3, Visual Order 1 on LG) */}
+                    {/* On mobile, this will appear LAST */}
                     <div className="lg:col-span-3 lg:order-1 w-full">
                         <Changelog />
                     </div>
 
-                    {/* Right Column: Fake Chat (Source Order 3, Visual Order 3) */}
-                    <div className="lg:col-span-3 lg:order-3 w-full">
-                        <FakeChat />
-                    </div>
                 </div>
             </div>
              <footer className="w-full mt-12 py-6">

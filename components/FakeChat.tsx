@@ -98,7 +98,7 @@ const FakeChat: React.FC = () => {
     }, [messages]);
 
     return (
-        <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700/50 h-full flex flex-col">
+        <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700/50 h-96 lg:h-full flex flex-col">
             <h3 className="font-bold text-lg mb-4 text-slate-800 dark:text-white flex-shrink-0">Aktivitas Terbaru</h3>
             <div ref={chatContainerRef} className="overflow-y-auto space-y-3 flex-grow h-0 pr-2">
                 {messages.map((msg, index) => (
