@@ -1,7 +1,7 @@
 import React from 'react';
 
 const changelogItems = [
-    { version: "v2.2", description: "penambahan Generate Terstruktur dan Kreatif" },
+    { version: "v2.2", description: "Implementasi Halaman Login baru yang dinamis." },
     { version: "v2.1", description: "Menambahkan fitur hapus riwayat per item." },
     { version: "v2.0", description: "Implementasi Negative Prompt cerdas." },
     { version: "v1.5", description: "Perbaikan bug tata letak dan UI." },
