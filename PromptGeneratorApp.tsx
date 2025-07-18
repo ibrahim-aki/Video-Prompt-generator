@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PromptParts, PromptPartLang, HistoryEntry } from './types';
 import { generatePrompt } from './services/geminiService';
@@ -504,31 +506,59 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
 
     const buildFinalPrompt = useCallback((parts: PromptParts, lang: 'id' | 'en') => {
         if (lang === 'en') {
-            const order: (keyof PromptParts)[] = [
-                'action', 'expression', 'place', 'time', 'cameraMovement', 
-                'lighting', 'videoStyle', 'videoMood', 'sound', 'dialogue', 'details'
-            ];
-            
-            const subjectPart = [parts.subject?.en, parts.subjectDetails?.en].filter(Boolean).join(' ');
-            const aspectRatioPart = parts.aspectRatio?.en ? `An aspect ratio of ${parts.aspectRatio.en}` : '';
-
-            const otherParts = order.map(key => {
-                // SPECIAL CASE: For the final English prompt, the dialogue should be in Indonesian.
-                if (key === 'dialogue') {
-                    return parts[key]?.id;
-                }
-                return parts[key]?.en;
-            }).filter(Boolean);
-
-            let allParts = [aspectRatioPart, subjectPart, ...otherParts].filter(Boolean);
-            let prompt = allParts.join(', ');
-
-            // This check also needs to use the Indonesian dialogue.
-            if (clearIntonation && modelTarget === 'veo3' && parts.dialogue?.id) {
-                prompt += ', spoken with clear intonation';
+            // This function now constructs the final English prompt by assembling components in a logical order.
+            // The main fix is to explicitly integrate the Indonesian dialogue into the action description.
+    
+            const promptComponents: string[] = [];
+    
+            // 1. Aspect Ratio - A key framing instruction, best placed at the start.
+            if (parts.aspectRatio?.en) {
+                promptComponents.push(`An aspect ratio of ${parts.aspectRatio.en}`);
             }
-            return prompt;
+    
+            // 2. Subject - The main focus of the scene.
+            const subjectPart = [parts.subject?.en, parts.subjectDetails?.en].filter(Boolean).join(' ');
+            if (subjectPart) {
+                promptComponents.push(subjectPart);
+            }
+    
+            // 3. Action & Dialogue - This is the critical part to get right for the language.
+            let combinedActionPart = parts.action?.en || '';
+            const hasDialogue = modelTarget === 'veo3' && parts.dialogue?.id && parts.dialogue.id.trim() !== '';
+    
+            if (hasDialogue) {
+                // Explicitly instruct the model what to say and in which language.
+                const dialogueInstruction = `saying in Indonesian: "${parts.dialogue.id.trim()}"`;
+                
+                // Append the dialogue instruction to the existing action, or use it as the action if none exists.
+                combinedActionPart = combinedActionPart ? `${combinedActionPart}, ${dialogueInstruction}` : dialogueInstruction;
+                
+                // Add the intonation instruction if the user checked the box.
+                if (clearIntonation) {
+                    combinedActionPart += ', with clear intonation';
+                }
+            }
+    
+            if (combinedActionPart) {
+                promptComponents.push(combinedActionPart);
+            }
+    
+            // 4. Remaining details - Add other atmospheric and technical details in a consistent order.
+            const remainingOrder: (keyof PromptParts)[] = [
+                'expression', 'place', 'time', 'cameraMovement', 'lighting', 'videoStyle', 'videoMood', 'sound', 'details'
+            ];
+    
+            remainingOrder.forEach(key => {
+                if (parts[key]?.en) {
+                    promptComponents.push(parts[key].en);
+                }
+            });
+            
+            // Join all components with a comma and space for a clean, readable final prompt.
+            return promptComponents.filter(p => p.trim() !== '').join(', ');
+    
         } else {
+            // The Indonesian prompt generation remains unchanged, as it's for user display, not the VEO model.
             const aspectRatioText = parts.aspectRatio?.id ? ` dalam rasio aspek ${parts.aspectRatio.id},` : '';
             return `Sebuah video ${parts.videoStyle?.id || ''}${aspectRatioText} dengan suasana ${parts.videoMood?.id || ''}, menampilkan ${parts.subject?.id || 'subjek'}${parts.subjectDetails?.id ? ` (${parts.subjectDetails.id})` : ''}. Subjek sedang ${parts.action?.id || 'melakukan sesuatu'} dengan ekspresi ${parts.expression?.id || ''}. Lokasinya di ${parts.place?.id || 'sebuah tempat'} pada ${parts.time?.id || 'suatu waktu'}. Video diambil dengan gerakan kamera ${parts.cameraMovement?.id || ''} dan pencahayaan ${parts.lighting?.id || ''}.${parts.sound?.id ? ` Terdengar ${parts.sound.id}.` : ''}${parts.dialogue?.id ? ` Terdengar dialog: "${parts.dialogue.id}".` : ''}${parts.details?.id ? ` Detail tambahan: ${parts.details.id}.` : ''}`;
         }
