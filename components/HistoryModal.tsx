@@ -45,22 +45,22 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, history, o
         <header className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
           <h2 id="history-modal-title" className="text-xl font-bold text-slate-900 dark:text-white">{translations.historyTitle}</h2>
           <div className="flex items-center gap-2">
+            <button
+                onClick={onImportClick}
+                title={translations.importHistoryTooltip}
+                className="flex items-center gap-2 text-sm bg-slate-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-slate-700 transition-colors"
+              >
+                <Icon type="download" className="w-4 h-4"/>
+                <span>{translations.importHistoryButton}</span>
+            </button>
             {history.length > 0 && (
-              <div className='flex items-center gap-2'>
-                <button
-                    onClick={onImportClick}
-                    title={translations.importHistoryTooltip}
-                    className="flex items-center gap-2 text-sm bg-slate-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-slate-700 transition-colors"
-                  >
-                    <Icon type="upload" className="w-4 h-4"/>
-                    <span>{translations.importHistoryButton}</span>
-                </button>
+              <>
                  <button
                     onClick={onExportHistory}
                     title={translations.exportHistoryTooltip}
                     className="flex items-center gap-2 text-sm bg-slate-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-slate-700 transition-colors"
                   >
-                    <Icon type="download" className="w-4 h-4"/>
+                    <Icon type="upload" className="w-4 h-4"/>
                     <span>{translations.exportHistoryButton}</span>
                 </button>
                 <button
@@ -70,7 +70,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, history, o
                 >
                   <Icon type="reset" className="w-4 h-4"/>
                 </button>
-              </div>
+              </>
             )}
             <button
               onClick={onClose}
