@@ -1,6 +1,7 @@
 import React from 'react';
 
 const changelogItems = [
+    { version: "v1.5.1Beta", description: "Penambahan fitur impor ekspor riwayat cross platform" },
     { version: "v1.5Beta", description: "Generated mode structure and creative beta test" },
     { version: "v1.4", description: "Dokumentasi panduan terpasang" },
     { version: "v1.3", description: "Menambahkan fitur hapus riwayat per item." },
