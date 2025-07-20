@@ -76,7 +76,7 @@ const translations = {
         creativeMode: "Kreatif",
         structuredModeTooltip: "AI akan mengisi kolom yang kosong berdasarkan struktur yang ada.",
         creativeModeTooltip: "AI akan mengembangkan ide Anda menjadi sebuah adegan yang lebih lengkap dan imajinatif.",
-        credit: "Pengembang - Tongsolop",
+        credit: "Aplikasi dibuat oleh Ibrahim",
         socialMedia: "Media Sosial",
         negativePromptHistoryLabel: "Negatif:",
         logoutButton: "Logout",
@@ -102,11 +102,20 @@ const translations = {
         guideFeatureEnhanceContent: "Fitur ini bekerja di latar belakang untuk menambahkan detail sinematik dan teknis (seperti jenis kamera, lensa, atau efek) ke prompt akhir Anda. Fitur ini tidak akan mengubah input Anda di formulir, hanya memperkaya hasil akhirnya untuk kualitas yang lebih tinggi.",
         guideFeatureIntonationTitle: "Intonasi Jelas",
         guideFeatureIntonationContent: "Jika Anda mengisi kolom 'Kalimat yang Diucapkan', mencentang opsi ini akan menambahkan instruksi khusus pada prompt agar subjek mengucapkan dialog dengan penekanan dan intonasi yang jelas, mengurangi hasil yang monoton.",
+        guideFeatureImportExportTitle: "Impor & Ekspor Riwayat",
+        guideFeatureImportExportContent: "Fitur ini memungkinkan Anda mencadangkan (ekspor) seluruh riwayat prompt Anda ke dalam sebuah file JSON. File ini dapat disimpan atau dipindahkan ke perangkat lain. Gunakan 'Impor' untuk memuat kembali riwayat dari file cadangan. Ini berguna untuk memindahkan data antar browser, perangkat, atau untuk berbagi riwayat dengan orang lain.",
         guideTargetModelTitle: "Target Model (VEO2 vs VEO3)",
         guideTargetModelContent: "Pilihan ini menyesuaikan format prompt akhir. VEO3 tidak memiliki kolom Negative Prompt terpisah, jadi jika VEO3 dipilih, prompt negatif akan otomatis digabungkan ke prompt utama. Jika VEO2 dipilih, prompt negatif akan ditampilkan di kotak terpisah untuk disalin manual.",
         guideAccountManagementTitle: "Manajemen Akun & Limitasi",
         guideAccountManagementContent: "Setiap pengguna memiliki batas generate harian. Pengguna standar akan direset setiap 24 jam. Jika Anda mencapai batas, Anda dapat menunggu atau menghubungi admin melalui tautan yang muncul untuk meminta akses premium (tanpa batas).",
         guideCloseButton: "Tutup Panduan",
+        importHistoryButton: "Impor",
+        exportHistoryButton: "Ekspor",
+        importHistoryTooltip: "Impor riwayat dari file JSON",
+        exportHistoryTooltip: "Ekspor riwayat saat ini ke file JSON",
+        importConfirm: "Ini akan menggabungkan riwayat yang diimpor dengan riwayat Anda saat ini. Entri duplikat akan diabaikan. Lanjutkan?",
+        importSuccess: "Riwayat berhasil diimpor dan digabungkan!",
+        importError: "File tidak valid atau rusak. Harap pilih file cadangan riwayat JSON yang benar.",
     },
     en: {
         title: "Prompt Generator App",
@@ -190,11 +199,20 @@ const translations = {
         guideFeatureEnhanceContent: "This feature works in the background to add cinematic and technical details (like camera type, lens, or effects) to your final prompt. It will not change your input in the form, only enrich the final output for higher quality.",
         guideFeatureIntonationTitle: "Clear Intonation",
         guideFeatureIntonationContent: "If you fill in the 'Dialogue' field, checking this option will add a special instruction to the prompt for the subject to speak the dialogue with clear emphasis and intonation, reducing monotonous results.",
+        guideFeatureImportExportTitle: "Import & Export History",
+        guideFeatureImportExportContent: "This feature allows you to back up (export) your entire prompt history into a JSON file. This file can be saved or moved to another device. Use 'Import' to load the history back from the backup file. This is useful for transferring your data between browsers, devices, or for sharing your history with others.",
         guideTargetModelTitle: "Target Model (VEO2 vs VEO3)",
         guideTargetModelContent: "This option adjusts the final prompt format. VEO3 does not have a separate Negative Prompt field, so if VEO3 is selected, the negative prompt will be automatically merged into the main prompt. If VEO2 is selected, the negative prompt will be displayed in a separate box to be copied manually.",
         guideAccountManagementTitle: "Account Management & Limits",
         guideAccountManagementContent: "Each user has a daily generation limit. Standard users are reset every 24 hours. If you reach your limit, you can wait or contact the admin via the link that appears to request premium (unlimited) access.",
         guideCloseButton: "Close Guide",
+        importHistoryButton: "Import",
+        exportHistoryButton: "Export",
+        importHistoryTooltip: "Import history from a JSON file",
+        exportHistoryTooltip: "Export current history to a JSON file",
+        importConfirm: "This will merge the imported history with your current one. Duplicate entries will be ignored. Continue?",
+        importSuccess: "History successfully imported and merged!",
+        importError: "Invalid or corrupted file. Please select a valid history backup JSON file.",
     },
     ar: {
         title: "تطبيق مولد الأوامر",
@@ -278,11 +296,20 @@ const translations = {
         guideFeatureEnhanceContent: " تعمل هذه الميزة في الخلفية لإضافة تفاصيل سينمائية وتقنية (مثل نوع الكاميرا أو العدسة أو التأثيرات) إلى الأمر النهائي. لن تغير مدخلاتك في النموذج، بل ستثري فقط الإخراج النهائي للحصول على جودة أعلى.",
         guideFeatureIntonationTitle: "نبرة واضحة",
         guideFeatureIntonationContent: "إذا قمت بملء حقل 'الحوار'، فإن تحديد هذا الخيار سيضيف تعليمات خاصة إلى الأمر لكي ينطق الموضوع الحوار بتركيز ونبرة واضحة، مما يقلل من النتائج الرتيبة.",
+        guideFeatureImportExportTitle: "استيراد وتصدير السجل",
+        guideFeatureImportExportContent: "تتيح لك هذه الميزة نسخ (تصدير) سجل الأوامر بالكامل إلى ملف JSON. يمكن حفظ هذا الملف أو نقله إلى جهاز آخر. استخدم 'استيراد' لتحميل السجل مرة أخرى من ملف النسخ الاحتياطي. هذا مفيد لنقل بياناتك بين المتصفحات أو الأجهزة المختلفة، أو لمشاركة سجلك مع الآخرين.",
         guideTargetModelTitle: "النموذج المستهدف (VEO2 vs VEO3)",
         guideTargetModelContent: "يضبط هذا الخيار تنسيق الأمر النهائي. لا يحتوي VEO3 على حقل أمر سلبي منفصل، لذلك إذا تم تحديد VEO3، فسيتم دمج الأمر السلبي تلقائيًا في الأمر الرئيسي. إذا تم تحديد VEO2، فسيتم عرض الأمر السلبي في مربع منفصل ليتم نسخه يدويًا.",
         guideAccountManagementTitle: "إدارة الحساب والحدود",
         guideAccountManagementContent: "كل مستخدم لديه حد إنشاء يومي. يتم إعادة تعيين المستخدمين القياسيين كل 24 ساعة. إذا وصلت إلى الحد الأقصى، يمكنك الانتظار أو الاتصال بالمسؤول عبر الرابط الذي يظهر لطلب وصول متميز (غير محدود).",
         guideCloseButton: "أغلق الدليل",
+        importHistoryButton: "استيراد",
+        exportHistoryButton: "تصدير",
+        importHistoryTooltip: "استيراد السجل من ملف JSON",
+        exportHistoryTooltip: "تصدير السجل الحالي إلى ملف JSON",
+        importConfirm: "سيؤدي هذا إلى دمج السجل المستورد مع سجلك الحالي. سيتم تجاهل الإدخالات المكررة. متابعة؟",
+        importSuccess: "تم استيراد السجل ودمجه بنجاح!",
+        importError: "ملف غير صالح أو تالف. يرجى تحديد ملف نسخ احتياطي صالح للسجل بتنسيق JSON.",
     },
     cn: {
         title: "提示生成器应用",
@@ -366,11 +393,20 @@ const translations = {
         guideFeatureEnhanceContent: "此功能在后台运行，将电影和技术细节（如相机类型、镜头或效果）添加到您的最终提示中。它不会更改您在表单中的输入，只会丰富最终输出以获得更高质量。",
         guideFeatureIntonationTitle: "清晰的语调",
         guideFeatureIntonationContent: "如果您填写了“对话”字段，选中此选项将向提示添加特殊说明，使主题以清晰的重音和语调说出对话，减少单调的结果。",
+        guideFeatureImportExportTitle: "导入和导出历史记录",
+        guideFeatureImportExportContent: "此功能允许您将整个提示历史记录备份（导出）到一个JSON文件中。该文件可以保存或移动到其他设备。使用“导入”从备份文件加载历史记录。这对于在不同浏览器、设备之间传输数据或与他人共享您的历史记录非常有用。",
         guideTargetModelTitle: "目标模型 (VEO2 vs VEO3)",
         guideTargetModelContent: "此选项调整最终提示的格式。VEO3没有单独的负面提示字段，因此如果选择VEO3，负面提示将自动合并到主提示中。如果选择VEO2，负面提示将显示在单独的框中以便手动复制。",
         guideAccountManagementTitle: "账户管理与限制",
         guideAccountManagementContent: "每个用户都有每日生成限制。标准用户每24小时重置一次。如果达到限制，您可以等待或通过出现的链接联系管理员，请求高级（无限制）访问权限。",
         guideCloseButton: "关闭指南",
+        importHistoryButton: "导入",
+        exportHistoryButton: "导出",
+        importHistoryTooltip: "从JSON文件导入历史记录",
+        exportHistoryTooltip: "将当前历史记录导出到JSON文件",
+        importConfirm: "这将把导入的历史记录与当前历史记录合并。重复的条目将被忽略。继续吗？",
+        importSuccess: "历史记录成功导入并合并！",
+        importError: "文件无效或已损坏。请选择一个有效的历史记录备份JSON文件。",
     },
     ru: {
         title: "Приложение-генератор промптов",
@@ -454,11 +490,20 @@ const translations = {
         guideFeatureEnhanceContent: "Эта функция работает в фоновом режиме, добавляя кинематографические и технические детали (например, тип камеры, объектив или эффекты) в ваш финальный промпт. Она не изменит ваш ввод в форме, а только обогатит конечный результат для более высокого качества.",
         guideFeatureIntonationTitle: "Четкая интонация",
         guideFeatureIntonationContent: "Если вы заполните поле 'Диалог', установка этого флажка добавит специальную инструкцию в промпт, чтобы объект произносил диалог с четким ударением и интонацией, уменьшая монотонность результатов.",
+        guideFeatureImportExportTitle: "Импорт и экспорт истории",
+        guideFeatureImportExportContent: "Эта функция позволяет вам создавать резервные копии (экспортировать) всей вашей истории промптов в файл JSON. Этот файл можно сохранить или перенести на другое устройство. Используйте 'Импорт', чтобы загрузить историю обратно из файла резервной копии. Это полезно для переноса ваших данных между разными браузерами, устройствами или для обмена вашей историей с другими.",
         guideTargetModelTitle: "Целевая модель (VEO2 vs VEO3)",
         guideTargetModelContent: "Этот параметр настраивает формат финального промпта. В VEO3 нет отдельного поля для негативного промпта, поэтому, если выбрана VEO3, негативный промпт будет автоматически объединен с основным. Если выбрана VEO2, негативный промпт будет отображаться в отдельном окне для ручного копирования.",
         guideAccountManagementTitle: "Управление аккаунтом и лимиты",
         guideAccountManagementContent: "У каждого пользователя есть дневной лимит генерации. Для стандартных пользователей лимит сбрасывается каждые 24 часа. Если вы достигли своего лимита, вы можете подождать или связаться с администратором по появившейся ссылке, чтобы запросить премиум-доступ (без ограничений).",
         guideCloseButton: "Закрыть руководство",
+        importHistoryButton: "Импорт",
+        exportHistoryButton: "Экспорт",
+        importHistoryTooltip: "Импортировать историю из файла JSON",
+        exportHistoryTooltip: "Экспортировать текущую историю в файл JSON",
+        importConfirm: "Это объединит импортированную историю с вашей текущей. Дублирующиеся записи будут проигнорированы. Продолжить?",
+        importSuccess: "История успешно импортирована и объединена!",
+        importError: "Неверный или поврежденный файл. Пожалуйста, выберите действительный файл резервной копии истории JSON.",
     }
 };
 
@@ -641,6 +686,7 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     const [usage, setUsage] = useState({ count: 0, limit: PROMPT_GENERATION_LIMIT, isUnlimited: false });
     const [limitError, setLimitError] = useState('');
     const [enhancedDetails, setEnhancedDetails] = useState<PromptPartLang | null>(null);
+    const importFileRef = useRef<HTMLInputElement>(null);
 
     const t = translations[uiLang];
 
@@ -927,6 +973,69 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
         }
     };
 
+    const handleExportHistory = () => {
+        if (history.length === 0) {
+            alert("No history to export.");
+            return;
+        }
+        const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+            JSON.stringify(history, null, 2)
+        )}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = "prompt_history_backup.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleImportClick = () => {
+        importFileRef.current?.click();
+    };
+
+    const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result;
+                if (typeof text !== 'string') throw new Error("File content is not readable.");
+                
+                const importedHistory: HistoryEntry[] = JSON.parse(text);
+
+                if (!Array.isArray(importedHistory) || (importedHistory.length > 0 && typeof importedHistory[0].id === 'undefined')) {
+                   alert(t.importError);
+                   return;
+                }
+
+                if (window.confirm(t.importConfirm)) {
+                    const existingIds = new Set(history.map(h => h.id));
+                    const newEntries = importedHistory.filter(entry => !existingIds.has(entry.id));
+
+                    if(newEntries.length === 0) {
+                        alert("No new entries to import.");
+                        return;
+                    }
+
+                    const mergedHistory = [...history, ...newEntries];
+                    mergedHistory.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                    setHistory(mergedHistory);
+                    localStorage.setItem('promptHistory', JSON.stringify(mergedHistory));
+                    alert(t.importSuccess);
+                }
+            } catch (error) {
+                console.error("Failed to import history:", error);
+                alert(t.importError);
+            } finally {
+                if(event.target) event.target.value = '';
+            }
+        };
+        reader.readAsText(file);
+    };
+
     const renderPromptInput = (part: keyof PromptParts, label: string, placeholder: string, required: boolean = false, rows: number = 2, children?: React.ReactNode) => {
         const dataLangKey: 'id' | 'en' = uiLang === 'id' ? 'id' : 'en';
         const value = promptParts[part] ? promptParts[part][dataLangKey] : '';
@@ -956,6 +1065,13 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
     
     return (
         <div className="flex flex-col min-h-screen">
+             <input
+                type="file"
+                ref={importFileRef}
+                onChange={handleFileImport}
+                accept=".json"
+                className="hidden"
+            />
             <header className="w-full py-4 border-b border-slate-200 dark:border-slate-700/50 sticky top-0 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-sm z-30">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div className="flex items-center gap-3">
@@ -1168,6 +1284,8 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                 onLoadPrompt={handleLoadFromHistory}
                 onClearHistory={handleClearHistory}
                 onDeleteItem={handleDeleteItem}
+                onImportClick={handleImportClick}
+                onExportHistory={handleExportHistory}
                 translations={{
                     historyTitle: t.historyTitle,
                     clearHistoryButton: t.clearHistoryButton,
@@ -1176,6 +1294,10 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                     closeButtonLabel: t.closeButtonLabel,
                     deleteItemButtonTooltip: t.deleteItemButtonTooltip,
                     negativePromptHistoryLabel: t.negativePromptHistoryLabel,
+                    importHistoryButton: t.importHistoryButton,
+                    exportHistoryButton: t.exportHistoryButton,
+                    importHistoryTooltip: t.importHistoryTooltip,
+                    exportHistoryTooltip: t.exportHistoryTooltip,
                 }}
             />
 
@@ -1197,6 +1319,8 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
                     guideFeatureEnhanceContent: t.guideFeatureEnhanceContent,
                     guideFeatureIntonationTitle: t.guideFeatureIntonationTitle,
                     guideFeatureIntonationContent: t.guideFeatureIntonationContent,
+                    guideFeatureImportExportTitle: t.guideFeatureImportExportTitle,
+                    guideFeatureImportExportContent: t.guideFeatureImportExportContent,
                     guideTargetModelTitle: t.guideTargetModelTitle,
                     guideTargetModelContent: t.guideTargetModelContent,
                     guideAccountManagementTitle: t.guideAccountManagementTitle,

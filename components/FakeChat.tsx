@@ -21,10 +21,10 @@ const fakeUsers = [
 "storyboarder_id", "produser_virtual", "lighting_expert_indo", "set_decorator_ai", "props_master_digital", "makeup_artist_virtual", "stuntman_cgi", "gaffer_digital", "grip_virtual", "dolly_operator_ai",
 
     // International & Creative Aliases (250)
-    "jakarta45", "shadow_killer21", "cyber_nomad_88", "pro_gamer_ID", "sinta_aja_deh", "kopi_sore_77", "sky_explorer99", "alpha_dev_01", "bintang_jatuh", "raja_terakhir",
-    "gadis_senja_02", "petualang_kode", "pixel_artist_92", "sutradara_malam", "cerita_visual", "kode_animasi", "dream_oxe_id", "galaxy_rider_7", "retro_synth_85", "flora_fauna_fan",
-    "arkitek_maya", "penjelajah_waktu", "master_prompt", "ratu_visual_id", "neuron_aktif", "seniman_digital", "pemburu_artefak", "chronos_surfer", "cerita_digital", "ahli_visualfx",
-    "editor_handal", "pencari_inspirasi", "dunia_fantasi_id", "motion_master", "king_nyusruk", "narrator_ai", "sutradara_vr", "pixel_perfect", "render_wizard", "komposer_ai",
+    "jakantr45", "shadow_killer21", "cyber_nomad_88", "pro_gamer_ID", "sinta_aja_deh", "kopi_sore_77", "sky_explorer99", "alpha_dev_01", "bintang_jatuh", "raja_terakhir",
+    "gadis_senja_02", "petualang_kode", "pixel_artist_92", "sutradara_malam", "cerita_visual", "kode_animasi", "dream_weaver_id", "galaxy_rider_7", "retro_synth_85", "flora_fauna_fan",
+    "arkitek_maya", "penjelajah_waktu", "master_prompt", "ratu_visual", "neuron_aktif", "seniman_digital", "pemburu_artefak", "chronos_surfer", "cerita_digital", "ahli_visualfx",
+    "editor_handal", "pencari_inspirasi", "dunia_fantasi_id", "motion_master", "gradien_warna", "narrator_ai", "sutradara_vr", "pixel_perfect", "render_wizard", "komposer_ai",
     "aether_drift", "void_walker", "silicon_sage", "quantum_quark", "nebula_navigator", "chroma_key_kid", "binary_bard", "glitch_ghost", "synthwave_samurai", "data_druid",
     "logic_lord", "byte_baron", "script_sorcerer", "pixel_prophet", "vector_voyager", "render_ronin", "shader_shaman", "kernel_king", "node_nomad", "api_apostle",
     "cloud_captain", "firewall_phantom", "hash_hermit", "lag_lord", "ping_paladin", "ram_reaper", "ssd_sorceress", "tcp_templar", "udp_urchin", "vram_viking",
@@ -35,15 +35,15 @@ const fakeUsers = [
     "captain_obvious", "sergeant_sarcasm", "major_malfunction", "private_joke", "colonel_kernel", "admiral_ai", "ensign_error", "commander_code", "lieutenant_lag", "general_glitch",
     "shadow_runner", "ghost_in_machine", "digital_drifter", "neon_ninja", "synth_surfer", "glitch_witch", "holo_hacker", "chrome_crusader", "data_dynamo", "pixel_pilgrim",
     "circuit_cleric", "arcane_architect", "code_conjurer", "dream_engineer", "ether_explorer", "flux_fisher", "grid_guardian", "hex_hunter", "icon_islander", "jpeg_juggler",
-    "karma_coder", "laser_lancer", "meta_janda", "nano_navigator", "omega_operator", "plasma_pilgrim", "quantum_quester", "reality_ripper", "stream_strider", "techno_templar",
+    "karma_coder", "laser_lancer", "meta_mage", "nano_navigator", "omega_operator", "plasma_pilgrim", "quantum_quester", "reality_ripper", "stream_strider", "techno_templar",
     "ultra_user", "virtual_voyager", "warp_weaver", "xeno_xplorer", "yotta_yielder", "zeta_zealot", "artist_42", "creator_101", "designer_3d", "editor_x",
-    "filmmaker_tidakpro", "generator_master", "hacker_ornot", "illustrator_ai", "journeyman_joe", "keyframer_k", "lightwave_lenny", "motion_mia", "node_nancy", "operator_otto",
-    "prompt_id", "quest_quincy", "render_rex", "story_sue", "timeline_tim", "uv_unwrapper", "vfx_vera", "world_wally", "x-pert_xavier", "youtuber_yancy",
+    "filmmaker_pro", "generator_g", "hacker_man", "illustrator_ai", "journeyman_joe", "keyframer_k", "lightwave_lenny", "motion_mia", "node_nancy", "operator_otto",
+    "prompt_patricia", "quest_quincy", "render_rex", "story_sue", "timeline_tim", "uv_unwrapper", "vfx_vera", "world_wally", "x-pert_xavier", "youtuber_yancy",
     "z-brush_zelda", "mr_anderson", "neo_one", "trinity_x", "morpheus_dreams", "agent_smith_ai", "the_oracle_gpt", "cypher_code", "switch_flip", "dozer_builds",
-    "tank_topbgt", "seraph_guardian", "keymaker_keys", "the_architect_v2", "persephone_p", "merovingian_m", "the_twins_cgi", "niobe_navigates", "ghost_glitches", "sparky_sparks",
-    "gizmox_gadget", "widget_wielder", "cogsworth_cogs", "sprocket_specs", "ratchet_rules", "clank_creates", "gadget_mu", "giman_godcrot", "widget_wizard", "sprocket_scientist",
+    "tank_operator", "seraph_guardian", "keymaker_keys", "the_architect_v2", "persephone_p", "merovingian_m", "the_twins_cgi", "niobe_navigates", "ghost_glitches", "sparky_sparks",
+    "gizmo_gadget", "widget_wielder", "cogsworth_cogs", "sprocket_specs", "ratchet_rules", "clank_creates", "gadget_guru", "gizmo_goddess", "widget_wizard", "sprocket_scientist",
     "ratchet_racer", "clank_coder", "bolt_builder", "nut_navigator", "screw_scripter", "gear_grinder", "pulley_programmer", "lever_logic", "spring_specialist", "cam_creator",
-    "piston_big", "valve_virtuoso", "flywheel_fanatic", "crankshaft_crafter", "axle_artist", "bearing_baron", "chassis_champion", "engine_engineer", "transmission_titan", "differential_dynamo",
+    "piston_pioneer", "valve_virtuoso", "flywheel_fanatic", "crankshaft_crafter", "axle_artist", "bearing_baron", "chassis_champion", "engine_engineer", "transmission_titan", "differential_dynamo",
 ];
 
 const fakeActions = [

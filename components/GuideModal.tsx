@@ -17,6 +17,8 @@ interface GuideTranslations {
   guideFeatureEnhanceContent: string;
   guideFeatureIntonationTitle: string;
   guideFeatureIntonationContent: string;
+  guideFeatureImportExportTitle: string;
+  guideFeatureImportExportContent: string;
   guideTargetModelTitle: string;
   guideTargetModelContent: string;
   guideAccountManagementTitle: string;
@@ -89,6 +91,7 @@ const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose, translations: 
             <SubSection title={t.guideFeatureKeepSubjectTitle} content={t.guideFeatureKeepSubjectContent} />
             <SubSection title={t.guideFeatureEnhanceTitle} content={t.guideFeatureEnhanceContent} />
             <SubSection title={t.guideFeatureIntonationTitle} content={t.guideFeatureIntonationContent} />
+            <SubSection title={t.guideFeatureImportExportTitle} content={t.guideFeatureImportExportContent} />
           </GuideSection>
 
           <GuideSection title={t.guideTargetModelTitle}>

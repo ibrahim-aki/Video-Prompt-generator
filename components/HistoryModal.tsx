@@ -9,6 +9,8 @@ interface HistoryModalProps {
   onLoadPrompt: (entry: HistoryEntry) => void;
   onClearHistory: () => void;
   onDeleteItem: (id: number) => void;
+  onImportClick: () => void;
+  onExportHistory: () => void;
   translations: {
     historyTitle: string;
     clearHistoryButton: string;
@@ -17,10 +19,14 @@ interface HistoryModalProps {
     closeButtonLabel: string;
     deleteItemButtonTooltip: string;
     negativePromptHistoryLabel: string;
+    importHistoryButton: string;
+    exportHistoryButton: string;
+    importHistoryTooltip: string;
+    exportHistoryTooltip: string;
   };
 }
 
-const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, history, onLoadPrompt, onClearHistory, onDeleteItem, translations }) => {
+const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, history, onLoadPrompt, onClearHistory, onDeleteItem, onImportClick, onExportHistory, translations }) => {
   if (!isOpen) return null;
 
   return (
@@ -40,13 +46,31 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, history, o
           <h2 id="history-modal-title" className="text-xl font-bold text-slate-900 dark:text-white">{translations.historyTitle}</h2>
           <div className="flex items-center gap-2">
             {history.length > 0 && (
-              <button
-                onClick={onClearHistory}
-                className="flex items-center gap-2 text-sm bg-red-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-red-700 transition-colors"
-              >
-                <Icon type="reset" className="w-4 h-4"/>
-                <span>{translations.clearHistoryButton}</span>
-              </button>
+              <div className='flex items-center gap-2'>
+                <button
+                    onClick={onImportClick}
+                    title={translations.importHistoryTooltip}
+                    className="flex items-center gap-2 text-sm bg-slate-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-slate-700 transition-colors"
+                  >
+                    <Icon type="upload" className="w-4 h-4"/>
+                    <span>{translations.importHistoryButton}</span>
+                </button>
+                 <button
+                    onClick={onExportHistory}
+                    title={translations.exportHistoryTooltip}
+                    className="flex items-center gap-2 text-sm bg-slate-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-slate-700 transition-colors"
+                  >
+                    <Icon type="download" className="w-4 h-4"/>
+                    <span>{translations.exportHistoryButton}</span>
+                </button>
+                <button
+                  onClick={onClearHistory}
+                  title={translations.clearHistoryButton}
+                  className="flex items-center gap-2 text-sm bg-red-600 text-white font-semibold py-2 px-3 rounded-md hover:bg-red-700 transition-colors"
+                >
+                  <Icon type="reset" className="w-4 h-4"/>
+                </button>
+              </div>
             )}
             <button
               onClick={onClose}
