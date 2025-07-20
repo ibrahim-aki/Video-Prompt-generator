@@ -34,18 +34,18 @@ const fakeActions = [
 ];
 
 const fakeTopics = [
-    "'seekor naga kristal di atas kota neon'", "'perpustakaan kuno yang melayang di angkasa'",
-    "'robot samurai bertarung di bawah hujan bunga sakura'", "'hutan ajaib dengan jamur yang menyala'",
+    "'seekor naga kristal di atas Tugu Monas'", "'perpustakaan kuno yang melayang di angkasa'",
+    "'robot samurai bertarung di bawah Patung Pancoran Jakarta'", "'hutan ajaib dengan jamur yang menyala'",
     "'kereta uap melintasi jembatan di atas awan'", "'astronot menemukan taman rahasia di Mars'",
-    "'pasar malam yang ramai di dunia cyberpunk'", "'detektif noir memecahkan kasus di kota yang selalu hujan'",
-    "'kapal bajak laut terbang di antara pulau-pulau langit'", "'makhluk bawah laut raksasa tidur di palung samudera'",
+    "'pasar malam yang ramai di Tanah Abang Jakarta'", "'detektif noir memecahkan kasus di kota yang selalu hujan'",
+    "'kapal bajak laut terbang di antara Gedung Gedung Tinggi Jakarta'", "'makhluk bawah laut raksasa tidur di palung samudera'",
     "'upacara teh di sebuah kuil di puncak gunung'", "'kota bawah tanah yang ditenagai oleh kristal raksasa'",
     "'seorang alkemis di laboratoriumnya yang berantakan'", "'manusia pohon kuno memberikan kebijaksanaan'",
     "'balapan mobil terbang di antara gedung pencakar langit'", "'penjelajah menemukan air terjun pelangi'",
     "'gurun pasir di malam hari dengan dua bulan purnama'", "'sebuah istana yang terbuat dari kaca dan cahaya'",
     "'pasar rempah-rempah eksotis di dunia fantasi'", "'robot kecil merawat taman di atap gedung'",
     "'prajurit viking berdiri di tepi tebing'", "'kafe yang nyaman saat badai salju di luar'",
-    "'konser musik holografik di masa depan'", "'hewan-hewan hutan mengadakan pertemuan rahasia'",
+    "'konser musik holografik di GBK Jakarta'", "'hewan-hewan hutan mengadakan pertemuan rahasia'",
     "'observatorium tua di puncak gunung'", "'seseorang memancing bintang dari danau kosmik'",
     "'kota Venesia dengan kanal yang terbuat dari lava'", "'tarian robot balerina di panggung opera'",
     "'sebuah jam saku yang bisa memutar kembali waktu'", "'anak-anak bermain di antara reruntuhan peradaban kuno'",
