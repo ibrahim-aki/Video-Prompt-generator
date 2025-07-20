@@ -76,7 +76,7 @@ const translations = {
         creativeMode: "Kreatif",
         structuredModeTooltip: "AI akan mengisi kolom yang kosong berdasarkan struktur yang ada.",
         creativeModeTooltip: "AI akan mengembangkan ide Anda menjadi sebuah adegan yang lebih lengkap dan imajinatif.",
-        credit: "Aplikasi dibuat oleh Tongsolop",
+        credit: "Pengembang - Tongsolop",
         socialMedia: "Media Sosial",
         negativePromptHistoryLabel: "Negatif:",
         logoutButton: "Logout",
