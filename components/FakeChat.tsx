@@ -3,21 +3,23 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // Greatly expanded data for more realistic and varied messages
 const fakeUsers = [
-    // Indonesian Names & Aliases (150)
-    "agus_santoso", "budi_wibowo", "citra_ayu", "diana_sari", "eko_prasetyo", "fitri_lestari", "guntur_hadi", "heru_purnomo", "indah_cahyani", "joko_susilo",
+    // Indonesian Names & Aliases (150+) - Generic & Fictional
+    "agus_santoso", "budi_wibowo", "citra_lestari", "dian_permana", "eko_prasetyo", "fitri_handayani", "guntur_hadi", "heru_purnomo", "indah_cahyani", "joko_susilo",
     "kartika_dewi", "lia_marina", "made_wirawan", "nina_rahayu", "oki_saputra", "putri_amelia", "qori_ahmad", "rizky_maulana", "sari_wijayanti", "tono_gunawan",
     "utami_ningrum", "viky_ramadhan", "wulan_permata", "xena_putri", "yudi_firmansyah", "zara_nabila", "andi_permana", "bunga_citra", "doni_kurniawan", "eka_wati",
-    "farhan_azis", "gita_maharani", "hendra_jaya", "ira_kusuma", "joni_walker_id", "ketut_sudarma", "linda_susanti", "mahesa_jenar", "nia_ramadhani", "pandu_wiguna",
-    "ratna_juwita", "sugeng_riyadi", "tiara_andini", "umar_bakri", "vina_panduwinata", "wahyu_hidayat", "yessy_gusman", "zulkifli_hasan", "abdi_negara", "bella_saphira",
-    "candra_kirana", "dewi_persik", "elang_gumilang", "fajar_sidiq", "galih_ginanjar", "hari_mukti", "ida_ayu", "jati_kumoro", "krisna_murti", "luh_putu",
-    "mang_oded", "neng_geulis", "onta_gurun", "pak_raden", "ratu_kidul", "sultan_agung", "teuku_umar", "udin_sedunia", "viva_swarowsky", "wiro_sableng",
-    "yani_mardianto", "zainudin_mz", "adi_bing_slamet", "bambang_pamungkas", "chicha_koeswoyo", "deddy_mizwar", "eva_arnaz", "ferry_salim", "gogon_srimulat", "helmy_yahya",
-    "iis_sugianto", "jaja_miharja", "koes_plus", "lydia_kandou", "mandra_sidoel", "nike_ardilla", "onky_alexander", "paramitha_rusady", "rhoma_irama", "susy_susanti",
-    "tukul_arwana", "ucok_baba", "vera_vecante", "warkop_dki", "yuni_shara", "zaskia_gotik", "ahmad_albar", "benyamin_sueb", "chrisye_official", "david_naif",
-    "ebiet_g_ade", "fariz_rm", "godbless_rocks", "harvey_malaiholo", "iwan_fals", "jamrud_band", "kaka_slank", "levi_synthesis", "marcell_siahaan", "naif_band",
-    "once_mekel", "padi_reborn", "raisa_6690", "sheila_on_7", "tompi_lessy", "ungu_band", "virgoun_tm", "wali_band", "yovie_widianto", "zigaz_band",
-    "render_warrior", "sutradara_gagal", "penulis_skenario_ai", "editor_kopi", "animator_lembur", "vfx_artist_jkt", "colorist_bandung", "sound_designer_sby", "komposer_jogja", "cinematographer_bali",
-    "storyboarder_id", "produser_virtual", "lighting_expert_indo", "set_decorator_ai", "props_master_digital", "makeup_artist_virtual", "stuntman_cgi", "gaffer_digital", "grip_virtual", "dolly_operator_ai",
+    "farhan_azis", "gita_maharani", "hendra_jaya", "ira_kusuma", "jati_kumoro", "krisna_murti", "luh_putu_sari", "mang_ucup", "neng_siti", "pak_bambang",
+    "ratna_juwita", "sugeng_riyadi", "tiara_ayu", "umar_sanusi", "vina_lestari", "wahyu_hidayat", "yessy_ Amelia", "zulkifli_nasution", "abdi_negara_p", "bella_safitri",
+    "candra_wijaya", "dewi_puspita", "elang_perkasa", "fajar_sidik", "galih_pradana", "hari_setiawan", "ida_bagus_k", "kadek_pramana", "linda_wibisono", "mahesa_arya",
+    "nia_kurniati", "pandu_wiguna", "ratu_anindya", "surya_putra", "teuku_rizal", "udin_purnama", "vera_anggraini", "wawan_gunawan", "yani_mardianti", "zainal_abidin",
+    "aditya_nugraha", "bintang_kejora", "cahya_gemilang", "dharma_bakti", "erwin_syah", "fahmi_hidayat", "ganjar_pranowo_fan", "halim_perdana", "ivan_mahendra", "jaya_kusuma",
+    "karina_putri", "lukman_hakim", "maya_lestari", "nanda_saputra", "oscar_wijaya", "pratiwi_sudarmono_fan", "qomar_hidayat", "rahmat_effendi", "sinta_nuriyah", "tri_yuniarti",
+"axr_creative", "bayu_sketches", "core_design", "delta_vfx_77", "echo_render", "flux_motion", "gamma_studios", "helix_anim", "ion_pictures", "jet_stream_visuals",
+"kilo_hertz_sound", "lumen_works", "matrix_cgi", "nebula_arts", "omega_films", "pixel_foundry", "quantum_renders", "rotor_drone_pilots", "sigma_grading", "terra_forms",
+"umbra_lighting", "vector_house", "warp_speed_edits", "xeno_designs", "yotta_pixels", "zeta_dynamics", "langit_biru_88", "kopi_sore_id", "jejak_digital_01", "gadis_kretek_22",
+"suara_nusantara", "cahaya_negeri", "angin_timur_99", "batas_cakrawala", "mimpi_anak_bangsa", "kode_merah_putih",
+"render_warrior", "sutradara_gagal", "penulis_skenario_ai", "editor_kopi", "animator_lembur", "vfx_artist_jkt", "colorist_bandung", "sound_designer_sby", "komposer_jogja", "cinematographer_bali",
+"storyboarder_id", "produser_virtual", "lighting_expert_indo", "set_decorator_ai", "props_master_digital", "makeup_artist_virtual", "stuntman_cgi", "gaffer_digital", "grip_virtual", "dolly_operator_ai",
+
     // International & Creative Aliases (250)
     "jakantr45", "shadow_killer21", "cyber_nomad_88", "pro_gamer_ID", "sinta_aja_deh", "kopi_sore_77", "sky_explorer99", "alpha_dev_01", "bintang_jatuh", "raja_terakhir",
     "gadis_senja_02", "petualang_kode", "pixel_artist_92", "sutradara_malam", "cerita_visual", "kode_animasi", "dream_weaver_id", "galaxy_rider_7", "retro_synth_85", "flora_fauna_fan",
@@ -336,7 +338,7 @@ const fakeElements = [
     "menampilkan 'dunia terbalik' atau 'gravitasi aneh'", "dengan 'efek miniaturisasi (tilt-shift video)'", "menggunakan 'efek 'bullet time''", "dengan 'efek 'dolly zoom' (Vertigo effect)'",
     "menambahkan 'subtitle' dengan gaya sinematik", "dengan 'animasi logo' di awal", "menggunakan 'transisi 'morphing'' antar adegan", "dengan 'transisi 'glitch''",
     "menambahkan 'elemen infografis' yang bergerak", "dengan 'efek 'double exposure''", "menggunakan 'efek 'parallax scrolling' 2.5D'", "dengan 'efek 'cinemagraph'' (gambar diam dengan sedikit gerakan)",
-    "menambahkan 'efek 'datamoshing''", "dengan 'efek 'scan lines' seperti monitor CRT'", "menggunakan 'efek 'VHS tape noise''", "dengan 'efek 'chromatic aberration' yang kuat'",
+    "menambahkan 'efek 'datamoshing''", "dengan 'efek 'scan lines' seperti monitor CRT''", "menggunakan 'efek 'VHS tape noise''", "dengan 'efek 'chromatic aberration' yang kuat'",
     
     // Sound & Music (60)
     "diiringi 'musik gamelan modern'", "hanya menggunakan 'diegetic sound' (suara dari adegan)", "dengan 'sound design yang imersif'", "diiringi 'musik orkestra epik'",
