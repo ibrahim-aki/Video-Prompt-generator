@@ -114,7 +114,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             </div>
              <footer className="w-full mt-12 py-6">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">Aplikasi dibuat oleh Ibrahim</p>
+                    <p className="text-center text-sm text-slate-600 dark:text-slate-400">Pengembang - Tongsolop</p>
                 </div>
             </footer>
         </div>
