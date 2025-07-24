@@ -1043,9 +1043,16 @@ const PromptGeneratorApp: React.FC<PromptGeneratorAppProps> = ({ onLogout }) => 
             <PromptInput
                 id={part} label={label} value={value}
                 onChange={(e) => {
-                    const current = promptParts[part] || createEmptyPromptPartLang();
-                    const keyToUpdate = uiLang === 'id' ? 'id' : 'en';
-                    handlePartChange(part, { ...current, [keyToUpdate]: e.target.value });
+                    const value = e.target.value;
+                    // When a user edits a field, we must clear the other language's value.
+                    // This signals to the AI that this field is "dirty" and needs a fresh translation and processing,
+                    // fixing the bug where changes were ignored.
+                    if (uiLang === 'id') {
+                        handlePartChange(part, { id: value, en: '' });
+                    } else {
+                        // Assumes any other language UI edits the 'en' prompt part.
+                        handlePartChange(part, { id: '', en: value });
+                    }
                 }}
                 placeholder={placeholder} rows={rows} required={required}
             > {children} </PromptInput>

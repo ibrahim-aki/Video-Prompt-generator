@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import type { PromptParts, PromptPartLang } from '../types';
 
@@ -77,6 +78,17 @@ const negativePromptInstruction = `
 -   The 'id' translation should be a direct translation of the 'en' comma-separated list.
 `;
 
+const translationAndDialogueInstruction = `
+**Absolute, Non-Negotiable Rules for the 'dialogue' field (Spoken Words):**
+1.  **PRESERVE OR IGNORE, NEVER CREATE**:
+    *   If the user provides text in \`dialogue.id\`, you **MUST** preserve that exact Indonesian text. Do not change it, do not add to it, do not translate it.
+    *   If the user leaves the \`dialogue.id\` field empty, you **MUST** also leave it empty. **DO NOT UNDER ANY CIRCUMSTANCES GENERATE, INVENT, OR CREATE ANY DIALOGUE TEXT.** The field must remain \`{"id": "", "en": ""}\`. This is the most critical rule for this field.
+2.  **NEVER TRANSLATE DIALOGUE**: The 'en' property of the 'dialogue' field **MUST ALWAYS be an empty string ("")**. This applies whether the user provided dialogue or not.
+
+**Rules for all other fields:**
+- For all other fields (subject, action, etc.), you MUST provide both an Indonesian ('id') and an English ('en') translation. The English version should be concise and optimized for an AI model.
+`;
+
 
 export const generatePrompt = async (
     lockedParts: { subject: PromptPartLang, subjectDetails: PromptPartLang } | null,
@@ -95,6 +107,10 @@ export const generatePrompt = async (
         ? "This model (VEO2) does not support audio, so the 'sound' and 'dialogue' components must have empty values."
         : "";
     const jsonStructure = isVeo2 ? jsonVeo2Structure : jsonVeo3Structure;
+
+    const keepSubjectInstruction = lockedParts 
+        ? "Crucially, DO NOT change the existing values for 'subject' and 'subjectDetails'. Preserve them exactly as they are in the input JSON. You must obey this rule."
+        : "";
 
     const realismEnhancementInstruction = enhanceToRealistic ? `
 **Realism Enhancement Activated**: The user wants to enhance the final output for realism and quality. You MUST act as an expert cinematographer and photographer. Your task is to intelligently inject hyper-realistic and cinematic details into the 'details' and 'negativePrompt' fields based on the user's specific choices. Do NOT change the user's selected values in the dropdowns (like 'videoStyle', 'cameraMovement', etc.).
@@ -122,13 +138,27 @@ export const generatePrompt = async (
 ` : '';
 
     if (generationMode === 'creative') {
-        systemInstruction = `You are a world-class creative director and cinematic storyteller. Your task is to take a user's potentially incomplete ideas (provided in a JSON object) and develop them into a complete, compelling, and visually rich scene.
-1.  **Analyze and Enhance**: Look at the user's input. Use their provided values as a core foundation. **Enhance and build upon their ideas**, making the scene richer and more coherent. Do not simply replace their choices, but perfect them.
-2.  **Fill Gaps Creatively**: If a field is empty, invent a fitting detail that aligns with the new, enhanced vision.
-3.  **Dropdown Constraints**: For certain fields, you must adhere to the provided list of options.
-4.  **Translate**: For every single component, you MUST provide both an Indonesian ('id') and an English ('en') translation. The English version should be concise and optimized for an AI model.
-5.  **Negative Prompt**: ${negativePromptInstruction}
-6.  **Format Output**: Your final response MUST be ONLY the completed JSON object. Do not include any commentary or markdown formatting. Just the raw JSON.
+        systemInstruction = `You are a world-class creative director and cinematic storyteller. Your task is to take a user's ideas and develop them into a complete, compelling, and visually rich scene.
+
+**RULE 1: RESPECT USER INPUT. THIS IS THE MOST IMPORTANT RULE.**
+- If a field in the input JSON is NOT empty (i.e., not \`{"id": "", "en": ""}\`), you **MUST NOT** change its core idea.
+- You are allowed to **ENHANCE** or **ADD DETAIL** to the user's text, but you **MUST NOT REPLACE** it.
+- **Good Example (Enhancing)**: User provides \`{"id": "seorang ksatria", "en": "a knight"}\`. You can change it to \`{"id": "seorang ksatria yang lelah dengan baju zirah penyok", "en": "a weary knight with dented armor"}\`. This is GOOD.
+- **Bad Example (Replacing)**: User provides \`{"id": "seorang ksatria", "en": "a knight"}\`. You **MUST NOT** change it to \`{"id": "seorang penyihir", "en": "a wizard"}\`. This is BAD and you must avoid it.
+
+**RULE 2: FILL EMPTY GAPS CREATIVELY.**
+- For any fields that are empty, you must invent compelling and creative details that fit the overall scene described by the user's filled-in fields.
+
+**RULE 3: MAINTAIN COHERENCE.**
+- The new details you invent must create a coherent and logical scene when combined with the user's original input.
+
+**OTHER RULES:**
+1.  **Dropdown Constraints**: For certain fields, you must adhere to the provided list of options. If the user has already selected a valid option, do not change it. If the field is empty, pick one from the list.
+2.  ${translationAndDialogueInstruction}
+3.  **Negative Prompt**: ${negativePromptInstruction}
+4.  **Format Output**: Your final response MUST be ONLY the completed JSON object. Do not include any commentary or markdown formatting. Just the raw JSON.
+
+${keepSubjectInstruction}
 ${realismEnhancementInstruction}
 ${optionsInstruction}
 ${modelDescription}
@@ -136,15 +166,11 @@ The JSON structure to fill is:
 ${jsonStructure}`;
 
     } else { // structured mode
-        const keepSubjectInstruction = lockedParts 
-            ? "Crucially, DO NOT change the existing values for 'subject' and 'subjectDetails'. Preserve them exactly as they are in the input JSON."
-            : "";
-
         systemInstruction = `You are a helpful and precise assistant. Your task is to complete a JSON object for a video prompt.
 1.  **Analyze**: Look at the provided JSON from the user. Some fields might be filled, others might be empty (e.g., {"id": "", "en": ""}).
 2.  **Complete, Don't Change**: Your primary goal is to **fill in ONLY the empty fields**. If a field already has content, YOU MUST NOT CHANGE IT.
 3.  **Dropdown Constraints**: When filling a field that has a list of valid options, you MUST choose from that list.
-4.  **Translate**: For any fields you fill, you MUST provide both an Indonesian ('id') and an English ('en') translation.
+4.  ${translationAndDialogueInstruction}
 5.  **Negative Prompt**: ${negativePromptInstruction}
 6.  **Format Output**: Your final response MUST be ONLY the completed JSON object. Do not include any commentary or markdown formatting. Just the raw JSON.
 ${keepSubjectInstruction}
@@ -208,6 +234,11 @@ ${jsonStructure}`;
         if (lockedParts) {
             result.subject = lockedParts.subject;
             result.subjectDetails = lockedParts.subjectDetails;
+        }
+
+        // As a safeguard, ensure user's original dialogue is preserved if it was provided
+        if (currentParts.dialogue?.id) {
+            result.dialogue = { ...result.dialogue, id: currentParts.dialogue.id };
         }
         
         if (isVeo2) {

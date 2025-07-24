@@ -6,10 +6,10 @@ export interface UserCredential {
 }
 
 export const credentials: UserCredential[] = [
-    { username: 'dita', password: 'dodol', limit: 5 },
+    { username: 'dita', password: 'dodol', limit: 2 },
     { username: 'ibrahim', password: 'ganteng', unlimited: true },
-    { username: 'enablr', password: 'enablr', limit: 5 },
-    { username: 'blackaxe', password: 'blackaxe', limit: 3 },
+    { username: 'enablr', password: 'enablr', limit: 2 },
+    { username: 'blackaxe', password: 'blackaxe', limit: 1 },
     { username: 'testuser', password: 'test', limit: 3 },
     { username: 'demo', password: 'demo', limit: 3 },
     { username: 'guest', password: 'guest', limit: 3 },
